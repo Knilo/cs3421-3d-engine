@@ -52,6 +52,10 @@ public class Game extends JFrame implements GLEventListener{
      * @throws FileNotFoundException
      */
     public static void main(String[] args) throws FileNotFoundException {
+        if (args.length == 0) {
+            System.out.println("No level file provided.");
+            return;
+        }
         Terrain terrain = LevelIO.load(new File(args[0]));
         Game game = new Game(terrain);
         game.run();
@@ -60,6 +64,7 @@ public class Game extends JFrame implements GLEventListener{
 	@Override
 	public void display(GLAutoDrawable drawable) {
 		// TODO Auto-generated method stub
+	    
 		
 	}
 
