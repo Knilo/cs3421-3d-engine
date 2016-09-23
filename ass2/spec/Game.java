@@ -20,7 +20,8 @@ import com.jogamp.opengl.util.FPSAnimator;
 public class Game extends JFrame implements GLEventListener, KeyListener {
 
     private Terrain myTerrain;
-    private static int angle = 0;
+    private static int angleY = 0;
+    private static int angleX = 0;
 
     public Game(Terrain terrain) {
     	super("Assignment 2");
@@ -83,43 +84,131 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     	
     	gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();  
+      
+        //Move camera
         
-    	
-    	//Move camera  
+        gl.glTranslated(-1, -1, -3);
+        gl.glRotated(-angleY, 0, 1, 0);
+        gl.glRotated(-angleX, 1, 0, 0);
         
-      //Move camera
-        gl.glRotated(angle, 1, 0, 0);
-        gl.glTranslated(-1,0,-2); //so it does not get clipped.
-        gl.glScaled(0.25, 0.25, 0.25);
-    
-        gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_LINE);
-    	displayTerrain(gl);
-    	gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);
+        //gl.glScaled(0.25,0.25,0.25);
+        gl.glScaled(0.25,0.25,0.25);
+        
+        gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_LINE);       
+        displayTerrain(gl);
+    	gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);     
 	}
 
 	private void displayTerrain(GL2 gl) {
 		// TODO Auto-generated method stub
 		Dimension d = this.myTerrain.size();
-		gl.glBegin(GL2.GL_TRIANGLE_STRIP);
+		
+		double p0[] = new double[3];
+		double p1[] = new double[3];
+		double p2[] = new double[3];
+		
 		for (int i = 0; i < d.getWidth()-1; i++) {
-			if (i % 2 == 0) {
-				for (int j = 0; j < d.getHeight (); j++) {
+			gl.glBegin(GL2.GL_TRIANGLE_STRIP);
+			for (int j = 0; j < d.getHeight (); j++) {			
+				if (j > 0) {
+					p2[0] = i;	
+					p2[1] = myTerrain.getGridAltitude(i, j);
+					p2[2] = j;
+					System.out.print("1 ");
+					printPoint(p2);
+				
+					double [] n1 = getNormal(p1,p0,p2);				
+					n1 = normalise(n1);
+					System.out.println("n1:" + n1[0]+ " "+ n1[1]+" " +n1[2]);
+					gl.glNormal3d(n1[0], n1[1], n1[2]);
+					gl.glVertex3d(p2[0], p2[1], p2[2]);
 					
-					gl.glVertex3d(i, myTerrain.getGridAltitude(i, j), j);
-					gl.glVertex3d(i+1, myTerrain.getGridAltitude(i+1, j), j);
-				}
-			} else {
-				for (int j = (int) (d.getHeight()-1); j > 0; j--) {					
-					gl.glVertex3d(i, myTerrain.getGridAltitude(i, j), j);
-					gl.glVertex3d(i+1, myTerrain.getGridAltitude(i+1, j), j);
-				}
-			}			
+					p0[0] = p1[0];
+					p0[1] = p1[1];
+					p0[2] = p1[2];
+					
+					p1[0] = p2[0];
+					p1[1] = p2[1];
+					p1[2] = p2[2];	
+					
+					p2[0] = i+1;	
+					p2[1] = myTerrain.getGridAltitude(i+1, j);
+					p2[2] = j;
+					System.out.print("2 ");
+					printPoint(p2);
+					double [] n2 = getNormal(p2,p0,p0);
+					n1 = normalise(n2);
+					System.out.println("n2:" + n2[0]+ " "+ n2[1]+" " +n2[2]);
+					gl.glNormal3d(n2[0], n2[1], n2[2]);
+					gl.glVertex3d(p2[0], p2[1], p2[2]);
+					
+					p0[0] = p1[0];
+					p0[1] = p1[1];
+					p0[2] = p1[2];
+					
+					p1[0] = p2[0];
+					p1[1] = p2[1];
+					p1[2] = p2[2];	
+			
+				} else {
+					p0[0] = i;
+					p0[1] = myTerrain.getGridAltitude(i, j);
+					p0[2] = j;
+					
+					p1[0] = i+1;
+					p1[1] = myTerrain.getGridAltitude(i+1, j);
+					p1[2] = j;
+					System.out.print("A ");
+					printPoint(p0);
+					System.out.print("B ");
+					printPoint(p1);
+					gl.glVertex3d(p0[0], p0[1], p0[2]);
+					gl.glVertex3d(p1[0], p1[1], p1[2]);
+//					System.out.println(p0[0] + " " + p0[2]);
+//					System.out.println(p1[0] + " " + p1[2]);
+				}								
+			}
+			gl.glEnd();
 		}	
 		
 		
-		gl.glEnd();
+		
+		
+		
+		
+		
+		
 	
 	}
+	
+	double getMagnitude(double [] n){
+    	double mag = n[0]*n[0] + n[1]*n[1] + n[2]*n[2];
+    	mag = Math.sqrt(mag);
+    	return mag;
+    }
+    
+    double [] normalise(double [] n){
+    	double  mag = getMagnitude(n);
+    	double norm[] = {n[0]/mag,n[1]/mag,n[2]/mag};
+    	return norm;
+    }
+    
+	double [] getNormal(double[] p0, double[] p1, double[] p2){
+    	double u[] = {p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]};
+    	double v[] = {p2[0] - p0[0], p2[1] - p0[1], p2[2] - p0[2]};
+    	
+    	return cross(u,v);
+    	
+    }
+	
+	double [] cross(double u [], double v[]){
+    	double crossProduct[] = new double[3];
+    	crossProduct[0] = u[1]*v[2] - u[2]*v[1];
+    	crossProduct[1] = u[2]*v[0] - u[0]*v[2];
+    	crossProduct[2] = u[0]*v[1] - u[1]*v[0];
+    	//System.out.println("CP " + crossProduct[0] + " " +  crossProduct[1] + " " +  crossProduct[2]);
+    	return crossProduct;
+    }
 
 	@Override
 	public void dispose(GLAutoDrawable drawable) {
@@ -141,10 +230,15 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glEnable(GL2.GL_LIGHTING);
         //Turn on default light
         gl.glEnable(GL2.GL_LIGHT0);
+        float globAmb[] = {0.9f, 0.9f, 0.9f, 1.0f};
+        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globAmb,0); // Global ambient light.
         
         // normalise normals (!)
         // this is necessary to make lighting work properly
         gl.glEnable(GL2.GL_NORMALIZE);
+        
+        gl.glEnable(GL2.GL_CULL_FACE);
+        gl.glCullFace(GL2.GL_BACK);
 	}
 
 	@Override
@@ -166,16 +260,24 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		  
 		 case KeyEvent.VK_UP:
 		       
-				  angle = (angle + 10) % 360;
+				  angleX = (angleX + 10) % 360;
 				  break;
 		 case KeyEvent.VK_DOWN:
 			     
-				  angle = (angle - 10) % 360;
-				  break;		
+				  angleX = (angleX - 10) % 360;
+				  break;	
+		 case KeyEvent.VK_LEFT:
+		       
+			  angleY = (angleY + 10) % 360;
+			  break;
+		 case KeyEvent.VK_RIGHT:
+		     
+			  angleY = (angleY - 10) % 360;
+			  break;
 		 default:
 			 break;
 		 }
-		 System.out.println(angle);
+		 System.out.println(angleX + " " + angleY);
 	}
 
 	@Override
@@ -189,4 +291,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		// TODO Auto-generated method stub
 		
 	}
+	void printPoint (double [] p) {
+			System.out.println("XZ("+p[0] + "," + p[2]+")" + ": " + p[1] );
+	}
+	
 }
+
