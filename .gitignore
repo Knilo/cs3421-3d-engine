@@ -50,3 +50,17 @@ local.properties
 # Code Recommenders
 .recommenders/
 0
+/Normals.class
+/LightAndMaterial.class
+/LightExample$Model.class
+/LightExample$MyColor.class
+/LightExample$Shading.class
+/LightExample.class
+/LightingView.class
+/SpaceShip.class
+/SphereInABoxMyLighting.class
+/Spotlight.class
+/TransparencyExample.class
+/TransparencyFudge.class
+/TransparencyLighting.class
+/ZFightingExample.class
