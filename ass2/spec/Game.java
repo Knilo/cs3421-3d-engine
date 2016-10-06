@@ -125,9 +125,12 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 					System.out.print("1 ");
 					printPoint(p2);
 				
-					double [] n1 = getNormal(p2,p1,p0);				
+					double [] n1 = getNormal(p0,p1,p2);				
 					n1 = normalise(n1);
 					System.out.println("n1:" + n1[0]+ " "+ n1[1]+" " +n1[2]);
+					if (n1[1] < 0) {
+					    System.out.println("LESS THAN 0!");
+					}
 					gl.glNormal3d(n1[0], n1[1], n1[2]);
 					gl.glVertex3d(p2[0], p2[1], p2[2]);
 					
@@ -144,7 +147,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 					p2[2] = j;
 					System.out.print("2 ");
 					printPoint(p2);
-					double [] n2 = getNormal(p0,p1,p2);
+					double [] n2 = getNormal(p2,p1,p0);
 					n1 = normalise(n2);
 					System.out.println("n2:" + n2[0]+ " "+ n2[1]+" " +n2[2]);
 					gl.glNormal3d(n2[0], n2[1], n2[2]);
