@@ -22,7 +22,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private Terrain myTerrain;
     private static int angleY = 0;
     private static int angleX = 0;
-
+    private static int framerate = 60;
     public Game(Terrain terrain) {
     	super("Assignment 2");
         myTerrain = terrain;
@@ -47,7 +47,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
           
  
           // Add an animator to call 'display' at 60fps        
-          FPSAnimator animator = new FPSAnimator(60);
+          FPSAnimator animator = new FPSAnimator(framerate);
           animator.add(panel);
           animator.start();
 
@@ -69,6 +69,14 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
             return;
         }
         Terrain terrain = LevelIO.load(new File(args[0]));
+        
+        if (args.length == 2) {
+            try {
+                framerate = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                framerate = 60;
+            }
+        }
         Game game = new Game(terrain);
         game.run(game);
     }
@@ -87,14 +95,14 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
       
         //Move camera
         
-        gl.glTranslated(-1, -1, -3);
+        gl.glTranslated(-1, -1, -7);
         gl.glRotated(-angleY, 0, 1, 0);
         gl.glRotated(-angleX, 1, 0, 0);
         
         //gl.glScaled(0.25,0.25,0.25);
         gl.glScaled(0.25,0.25,0.25);
         
-        gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_LINE);       
+        gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);       
         displayTerrain(gl);
     	gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);     
 	}
@@ -117,7 +125,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 					System.out.print("1 ");
 					printPoint(p2);
 				
-					double [] n1 = getNormal(p1,p0,p2);				
+					double [] n1 = getNormal(p2,p1,p0);				
 					n1 = normalise(n1);
 					System.out.println("n1:" + n1[0]+ " "+ n1[1]+" " +n1[2]);
 					gl.glNormal3d(n1[0], n1[1], n1[2]);
@@ -136,7 +144,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 					p2[2] = j;
 					System.out.print("2 ");
 					printPoint(p2);
-					double [] n2 = getNormal(p2,p0,p0);
+					double [] n2 = getNormal(p0,p1,p2);
 					n1 = normalise(n2);
 					System.out.println("n2:" + n2[0]+ " "+ n2[1]+" " +n2[2]);
 					gl.glNormal3d(n2[0], n2[1], n2[2]);
@@ -171,14 +179,6 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 			gl.glEnd();
 		}	
 		
-		
-		
-		
-		
-		
-		
-		
-	
 	}
 	
 	double getMagnitude(double [] n){
