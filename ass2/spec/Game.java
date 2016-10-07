@@ -88,22 +88,24 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 
     	//Forgetting to clear the depth buffer can cause problems 
     	//such as empty black screens.
-    	gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+    	gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
     	
     	gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();  
       
         //Move camera
+
         
-        gl.glTranslated(-1, -1, -7);
-        gl.glRotated(-angleY, 0, 1, 0);
-        gl.glRotated(-angleX, 1, 0, 0);
-        
-        //gl.glScaled(0.25,0.25,0.25);
+        gl.glTranslated(-1, -1, -3);
+     
         gl.glScaled(0.25,0.25,0.25);
         
-        gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);       
+        //gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_LINE);
+        gl.glRotated(-angleY, 0, 1, 0);
+        gl.glRotated(-angleX, 1, 0, 0);
         displayTerrain(gl);
+        
+        
     	gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);     
 	}
 
@@ -115,70 +117,127 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		double p1[] = new double[3];
 		double p2[] = new double[3];
 		
-		for (int i = 0; i < d.getWidth()-1; i++) {
-			gl.glBegin(GL2.GL_TRIANGLE_STRIP);
-			for (int j = 0; j < d.getHeight (); j++) {			
-				if (j > 0) {
-					p2[0] = i;	
-					p2[1] = myTerrain.getGridAltitude(i, j);
-					p2[2] = j;
-					System.out.print("1 ");
-					printPoint(p2);
+		for (int x = 0; x < d.getWidth()-1; x++) { //
+			for (int z = 0; z < d.getHeight()-1; z++) {	
+				gl.glBegin(GL2.GL_TRIANGLE_STRIP);
+				p0[0] = x;
+				p0[1] = myTerrain.getGridAltitude(x, z+1);
+				p0[2] = z+1;
 				
-					double [] n1 = getNormal(p2,p1,p0);				
-					n1 = normalise(n1);
-					System.out.println("n1:" + n1[0]+ " "+ n1[1]+" " +n1[2]);
-					gl.glNormal3d(n1[0], n1[1], n1[2]);
-					gl.glVertex3d(p2[0], p2[1], p2[2]);
-					
-					p0[0] = p1[0];
-					p0[1] = p1[1];
-					p0[2] = p1[2];
-					
-					p1[0] = p2[0];
-					p1[1] = p2[1];
-					p1[2] = p2[2];	
-					
-					p2[0] = i+1;	
-					p2[1] = myTerrain.getGridAltitude(i+1, j);
-					p2[2] = j;
-					System.out.print("2 ");
-					printPoint(p2);
-					double [] n2 = getNormal(p0,p1,p2);
-					n1 = normalise(n2);
-					System.out.println("n2:" + n2[0]+ " "+ n2[1]+" " +n2[2]);
-					gl.glNormal3d(n2[0], n2[1], n2[2]);
-					gl.glVertex3d(p2[0], p2[1], p2[2]);
-					
-					p0[0] = p1[0];
-					p0[1] = p1[1];
-					p0[2] = p1[2];
-					
-					p1[0] = p2[0];
-					p1[1] = p2[1];
-					p1[2] = p2[2];	
-			
-				} else {
-					p0[0] = i;
-					p0[1] = myTerrain.getGridAltitude(i, j);
-					p0[2] = j;
-					
-					p1[0] = i+1;
-					p1[1] = myTerrain.getGridAltitude(i+1, j);
-					p1[2] = j;
-					System.out.print("A ");
-					printPoint(p0);
-					System.out.print("B ");
-					printPoint(p1);
-					gl.glVertex3d(p0[0], p0[1], p0[2]);
-					gl.glVertex3d(p1[0], p1[1], p1[2]);
-//					System.out.println(p0[0] + " " + p0[2]);
-//					System.out.println(p1[0] + " " + p1[2]);
-				}								
-			}
-			gl.glEnd();
-		}	
+				p1[0] = x;	
+				p1[1] = myTerrain.getGridAltitude(x, z);
+				p1[2] = z;
+
+				p2[0] = x+1;	
+				p2[1] = myTerrain.getGridAltitude(x+1,z);
+				p2[2] = z;
+				
+				double [] n0 = getNormal(p0,p1,p2);
+				n0 = normalise(n0);
+				printPoint(p0,"");
+				printPoint(p1,"");
+				printPoint(p2,": ");
+				printVector(n0,"\n");
+				
+				gl.glNormal3d(n0[0], n0[1], n0[2]);
+				gl.glVertex3d(p0[0], p0[1], p0[2]);
+				gl.glVertex3d(p1[0], p1[1], p1[2]);
+				gl.glVertex3d(p2[0], p2[1], p2[2]);
+				
+				p0[0] = p1[0];
+				p0[1] = p1[1];
+				p0[2] = p1[2];
+				
+				p1[0] = p2[0];
+				p1[1] = p2[1];
+				p1[2] = p2[2];	
+				
+				p2[0] = x+1;	
+				p2[1] = myTerrain.getGridAltitude(x+1, z+1);
+				p2[2] = z+1;
+				double [] n1 = getNormal(p0,p1,p2);
+				n1 = normalise(n1);
+				printPoint(p0,"");
+				printPoint(p1,"");
+				printPoint(p2,": ");
+				printVector(n1,"\n");
+				
+				gl.glNormal3d(n1[0], n1[1], n1[2]);
+				gl.glVertex3d(p2[0], p2[1], p2[2]);	
+				
+				p0[0] = p1[0];
+				p0[1] = p1[1];
+				p0[2] = p1[2];
+				
+				p1[0] = p2[0];
+				p1[1] = p2[1];
+				p1[2] = p2[2];
+				
+				p2[0] = x;
+				p2[1] = this.myTerrain.getGridAltitude(x, z+1);
+				p2[2] = z+1;
+				
+				double [] n2 = getNormal(p0,p1,p2);
+				n2 = normalise(n2);
+				printPoint(p0,"");
+				printPoint(p1,"");
+				printPoint(p2,": ");
+				printVector(n2,"\n");
+				
+				gl.glNormal3d(n2[0], n2[1], n2[2]);
+				gl.glVertex3d(p2[0], p2[1], p2[2]);
+				
+				p0[0] = p1[0];
+				p0[1] = p1[1];
+				p0[2] = p1[2];
+				
+				p1[0] = p2[0];
+				p1[1] = p2[1];
+				p1[2] = p2[2];
+				
+				p2[0] = x;
+				p2[1] = this.myTerrain.getGridAltitude(x,z);
+				p2[2] = z;
+				
+				double [] n3 = getNormal(p0,p1,p2);
+				n3 = normalise(n3);
+				printPoint(p0,"");
+				printPoint(p1,"");
+				printPoint(p2,": ");
+				printVector(n3,"\n");
+				
+				gl.glNormal3d(n3[0], n3[1], n3[2]);
+				gl.glVertex3d(p2[0], p2[1], p2[2]);
+				
+//				p0[0] = p1[0];
+//				p0[1] = p1[1];
+//				p0[2] = p1[2];
+//				
+//				p1[0] = p2[0];
+//				p1[1] = p2[1];
+//				p1[2] = p2[2];
+//				
+//				p2[0] = x+1;
+//				p2[1] = this.myTerrain.getGridAltitude(x+1,z+1);
+//				p2[2] = z+1;
+//				
+//				double [] n4 = getNormal(p0,p1,p2);
+//				//n3 = normalise(n3);
+//				printPoint(p0,"");
+//				printPoint(p1,"");
+//				printPoint(p2,": ");
+//				printVector(n3,"\n");
+//				
+//				gl.glNormal3d(n4[0], n4[1], n4[2]);
+//				gl.glVertex3d(p2[0], p2[1], p2[2]);
+				
+				gl.glEnd();
+				
+				System.out.println();
+			}		
+		}
 		
+		//System.exit(0);
 	}
 	
 	double getMagnitude(double [] n){
@@ -230,6 +289,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glEnable(GL2.GL_LIGHTING);
         //Turn on default light
         gl.glEnable(GL2.GL_LIGHT0);
+        
         float globAmb[] = {0.9f, 0.9f, 0.9f, 1.0f};
         gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globAmb,0); // Global ambient light.
         
@@ -291,9 +351,202 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		// TODO Auto-generated method stub
 		
 	}
-	void printPoint (double [] p) {
-			System.out.println("XZ("+p[0] + "," + p[2]+")" + ": " + p[1] );
+	
+	void printPoint (double [] p, String end) {
+		System.out.print("["+ p[0] + "," + p[2]+"] (" +p[1] + ") " + end);
+		//System.out.print("["+ p[0] + "," + p[2]+"] (" +p[1] + ") " + end);
+	}
+	
+	void printVector (double [] p, String end) {
+		System.out.print("("+ p[0] + "," + p[1] + "," + p[2]+") " + end);
 	}
 	
 }
+/*
+ * for (int i = 0; i < d.getWidth()-1; i++) {		
+			gl.glBegin(GL2.GL_TRIANGLE_STRIP);
+			for (int j = 0; j < d.getHeight (); j++) {			
+				
+				if (j > 0) {
+					p2[0] = i;	
+					p2[1] = myTerrain.getGridAltitude(i, j);
+					p2[2] = j;
+					System.out.print("1 ");
+					printPoint(p2);
+				
+					double [] n1 = getNormal(p0,p1,p2);				
+					//n1 = normalise(n1);
+					System.out.println("n1:" + n1[0]+ " "+ n1[1]+" " +n1[2]);
+					gl.glNormal3d(n1[0], n1[1], n1[2]);
+					gl.glVertex3d(p2[0], p2[1], p2[2]);
+					
+					p0[0] = p1[0];
+					p0[1] = p1[1];
+					p0[2] = p1[2];
+					
+					p1[0] = p2[0];
+					p1[1] = p2[1];
+					p1[2] = p2[2];	
+					
+					p2[0] = i+1;	
+					p2[1] = myTerrain.getGridAltitude(i+1, j);
+					p2[2] = j;
+					System.out.print("2 ");
+					printPoint(p2);
+					double [] n2 = getNormal(p2,p1,p0);
+					//n2 = normalise(n2);
+					System.out.println("n2:" + n2[0]+ " "+ n2[1]+" " +n2[2]);
+					gl.glNormal3d(n2[0], n2[1], n2[2]);
+					gl.glVertex3d(p2[0], p2[1], p2[2]);
+					
+					p0[0] = p1[0];
+					p0[1] = p1[1];
+					p0[2] = p1[2];
+					
+					p1[0] = p2[0];
+					p1[1] = p2[1];
+					p1[2] = p2[2];	
+			
+				} else {
+					p0[0] = i;
+					p0[1] = myTerrain.getGridAltitude(i, j);
+					p0[2] = j;
+					
+					p1[0] = i+1;
+					p1[1] = myTerrain.getGridAltitude(i+1, j);
+					p1[2] = j;
+					System.out.print("A ");
+					printPoint(p0);
+					System.out.print("B ");
+					printPoint(p1);
+					gl.glVertex3d(p0[0], p0[1], p0[2]);
+					gl.glVertex3d(p1[0], p1[1], p1[2]);
+//					System.out.println(p0[0] + " " + p0[2]);
+//					System.out.println(p1[0] + " " + p1[2]);
+				}
+				
+			}
+			gl.glEnd();
+			
+		}
+ */
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//for (int x = 0; x < 1; x++) {		//d.getWidth()-1
+//	gl.glBegin(GL2.GL_TRIANGLE_STRIP);
+//	
+//	System.out.println("-----------------------------------------------");
+//	
+//	p0[0] = x;
+//	p0[1] = myTerrain.getGridAltitude(x, 1);
+//	p0[2] = 1;
+//	
+//	p1[0] = x;
+//	p1[1] = myTerrain.getGridAltitude(x, 0);
+//	p1[2] = 0;
+//	
+//	System.out.print("A ");
+//	printPoint(p0,"");
+//	printPoint(p1,"");
+//	gl.glVertex3d(p0[0], p0[1], p0[2]);
+//	gl.glVertex3d(p1[0], p1[1], p1[2]);
+//	
+//	for (int z = 1; z < d.getHeight (); z++) {	
+//		
+//			
+//
+//			p2[0] = x+1;	
+//			p2[1] = myTerrain.getGridAltitude(x+1, z-1);
+//			p2[2] = z-1;
+//			
+//			double [] n1 = getNormal(p0,p1,p2);
+//			//n1 = normalise(n1);				
+//			printPoint(p2,": ");
+//			printVector(n1,"\n");
+//			
+//			gl.glNormal3d(n1[0], n1[1], n1[2]);
+//			gl.glVertex3d(p2[0], p2[1], p2[2]);
+//			
+//			p0[0] = p1[0];
+//			p0[1] = p1[1];
+//			p0[2] = p1[2];
+//			
+//			p1[0] = p2[0];
+//			p1[1] = p2[1];
+//			p1[2] = p2[2];	
+//			
+//			p2[0] = x+1;	
+//			p2[1] = myTerrain.getGridAltitude(x+1, z);
+//			p2[2] = z;
+//			double [] n2 = getNormal(p2,p1,p0);
+//			//n2 = normalise(n2);
+//			
+//			System.out.print("B ");
+//			printPoint(p0,"");
+//			printPoint(p1,"");
+//			printPoint(p2,": ");
+//			printVector(n2,"\n");
+//			
+//			gl.glNormal3d(n2[0], n2[1], n2[2]);
+//			gl.glVertex3d(p2[0], p2[1], p2[2]);
+//			
+//			
+//			System.out.println();
+//			
+//			if(z < d.getHeight()-1) {
+//				p0[0] = p1[0];
+//				p0[1] = p1[1];
+//				p0[2] = p1[2];
+//				
+//				p1[0] = p2[0];
+//				p1[1] = p2[1];
+//				p1[2] = p2[2];
+//				
+//				p2[0] = x;
+//				p2[1] = this.myTerrain.getGridAltitude(x, z-1);
+//				p2[2] = z;
+//				
+//				double [] n3 = getNormal(p2,p1,p0);
+//				//n3 = normalise(n3);
+//				System.out.print("C ");
+//				printPoint(p0,"");
+//				printPoint(p1,"");
+//				printPoint(p2,": ");
+//				printVector(n3,"\n");
+//				
+//				gl.glNormal3d(n3[0], n3[1], n3[2]);
+//				gl.glVertex3d(p2[0], p2[1], p2[2]);
+//				
+//				
+//				p0[0] = p1[0];
+//				p0[1] = p1[1];
+//				p0[2] = p1[2];
+//				
+//				p1[0] = p2[0];
+//				p1[1] = p2[1];
+//				p1[2] = p2[2];
+//				
+//				System.out.print("D ");
+//				printPoint(p0,"");
+//				printPoint(p1,"");
+//			}			
+//	}
+//	gl.glEnd();
+//	
+//}
+//
+////System.exit(0);
