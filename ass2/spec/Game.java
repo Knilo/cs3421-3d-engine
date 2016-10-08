@@ -93,24 +93,24 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     	gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();  
       
-        //Move camera
-
-        
-        gl.glTranslated(-1, 0, -7);
-     
+        //Move camera      
+        gl.glTranslated(-1, 0, -7);    
         gl.glScaled(0.25,0.25,0.25);
-        
-        //gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_LINE);
         gl.glRotated(-angleY, 0, 1, 0);
         gl.glRotated(-angleX, 1, 0, 0);
+        
+        //gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_LINE);
         displayTerrain(gl);
-        
-        
+        displayTrees(gl);
     	gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);     
 	}
 
-	private void displayTerrain(GL2 gl) {
+	private void displayTrees(GL2 gl) {
 		// TODO Auto-generated method stub
+		
+	}
+
+	private void displayTerrain(GL2 gl) {
 		Dimension d = this.myTerrain.size();
 		
 		double p0[] = new double[3];
