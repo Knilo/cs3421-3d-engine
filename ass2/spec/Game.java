@@ -96,7 +96,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         //Move camera
 
         
-        gl.glTranslated(-1, -1, -3);
+        gl.glTranslated(-1, 0, -7);
      
         gl.glScaled(0.25,0.25,0.25);
         
@@ -132,7 +132,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 				p2[1] = myTerrain.getGridAltitude(x+1,z);
 				p2[2] = z;
 				
-				double [] n0 = getNormal(p0,p1,p2);
+				double [] n0 = getNormal(p2,p1,p0);
 				n0 = normalise(n0);
 				printPoint(p0,"");
 				printPoint(p1,"");
@@ -155,7 +155,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 				p2[0] = x+1;	
 				p2[1] = myTerrain.getGridAltitude(x+1, z+1);
 				p2[2] = z+1;
-				double [] n1 = getNormal(p0,p1,p2);
+				double [] n1 = getNormal(p2,p1,p0);
 				n1 = normalise(n1);
 				printPoint(p0,"");
 				printPoint(p1,"");
@@ -177,7 +177,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 				p2[1] = this.myTerrain.getGridAltitude(x, z+1);
 				p2[2] = z+1;
 				
-				double [] n2 = getNormal(p0,p1,p2);
+				double [] n2 = getNormal(p2,p1,p0);
 				n2 = normalise(n2);
 				printPoint(p0,"");
 				printPoint(p1,"");
@@ -199,7 +199,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 				p2[1] = this.myTerrain.getGridAltitude(x,z);
 				p2[2] = z;
 				
-				double [] n3 = getNormal(p0,p1,p2);
+				double [] n3 = getNormal(p2,p1,p0);
 				n3 = normalise(n3);
 				printPoint(p0,"");
 				printPoint(p1,"");
