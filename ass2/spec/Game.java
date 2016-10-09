@@ -121,7 +121,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		double p2[] = new double[3];
 		
 		//specifiy how texture values combine with current surface color values.
-		gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
+		gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE);
 		for (int x = 0; x < d.getWidth()-1; x++) { //
 			for (int z = 0; z < d.getHeight()-1; z++) {	
 				gl.glBegin(GL2.GL_TRIANGLE_STRIP);
