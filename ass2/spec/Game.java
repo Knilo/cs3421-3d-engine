@@ -20,9 +20,12 @@ import com.jogamp.opengl.util.FPSAnimator;
 public class Game extends JFrame implements GLEventListener, KeyListener {
 
     private Terrain myTerrain;
+    private LevelTexture[] myTextures;
     private static int angleY = 0;
     private static int angleX = 0;
     private static int framerate = 60;
+    private String grassTexture = "grass.bmp";
+    private String grassTextureExt = "bmp";
     public Game(Terrain terrain) {
     	super("Assignment 2");
         myTerrain = terrain;
@@ -117,6 +120,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		double p1[] = new double[3];
 		double p2[] = new double[3];
 		
+		//specifiy how texture values combine with current surface color values.
+		gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
 		for (int x = 0; x < d.getWidth()-1; x++) { //
 			for (int z = 0; z < d.getHeight()-1; z++) {	
 				gl.glBegin(GL2.GL_TRIANGLE_STRIP);
@@ -140,9 +145,17 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 				printVector(n0,"\n");
 				
 				gl.glNormal3d(n0[0], n0[1], n0[2]);
+				
+				//use textures here
+				gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[0].getTextureId());
+				
+				gl.glTexCoord2d(0.0, 0.0);
 				gl.glVertex3d(p0[0], p0[1], p0[2]);
+				gl.glTexCoord2d(4.0, 4.0);
 				gl.glVertex3d(p1[0], p1[1], p1[2]);
+				gl.glTexCoord2d(8.0, 0.0);
 				gl.glVertex3d(p2[0], p2[1], p2[2]);
+				gl.glTexCoord2d(0.0, 0.0);
 				
 				p0[0] = p1[0];
 				p0[1] = p1[1];
@@ -299,6 +312,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         
         gl.glEnable(GL2.GL_CULL_FACE);
         gl.glCullFace(GL2.GL_BACK);
+        
+        //enable textures
+        gl.glEnable(GL2.GL_TEXTURE_2D);
+        myTextures = new LevelTexture[1];
+        myTextures[0] = new LevelTexture(gl, grassTexture, grassTextureExt, true);
 	}
 
 	@Override
