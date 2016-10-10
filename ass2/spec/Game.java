@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
+import com.jogamp.opengl.glu.GLU;
+
 import javax.swing.JFrame;
 import com.jogamp.opengl.util.FPSAnimator;
 
@@ -23,6 +25,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private LevelTexture[] myTextures;
     private static int angleY = 0;
     private static int angleX = 0;
+    private double posX = -1;
+    private double posY = 0;
+    private double posZ = -7;
+    private double scale = 0.25;
     private static int framerate = 60;
     private String grassTexture = "grass.bmp";
     private String grassTextureExt = "bmp";
@@ -97,15 +103,21 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glLoadIdentity();  
       
         //Move camera      
-        gl.glTranslated(-1, 0, -7);    
-        gl.glScaled(0.25,0.25,0.25);
+        gl.glTranslated(posX, posY, posZ);    
+        
         gl.glRotated(-angleY, 0, 1, 0);
         gl.glRotated(-angleX, 1, 0, 0);
         
-        //gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_LINE);
+        gl.glScaled(scale,scale,scale);
+        
+        gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);
+        gl.glPushMatrix();
         displayTerrain(gl);
+        gl.glPopMatrix();
+        gl.glPushMatrix();
         displayTrees(gl);
-    	gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);     
+        gl.glPopMatrix();
+        gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);   
 	}
 
 	private void displayTrees(GL2 gl) {
@@ -121,9 +133,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		double p2[] = new double[3];
 		
 		//specifiy how texture values combine with current surface color values.
-		gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE);
+		gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE );
 		for (int x = 0; x < d.getWidth()-1; x++) { //
-			for (int z = 0; z < d.getHeight()-1; z++) {	
+			for (int z = 0; z < d.getHeight()-1; z++) {
+			    gl.glPushMatrix();
 				gl.glBegin(GL2.GL_TRIANGLE_STRIP);
 				p0[0] = x;
 				p0[1] = myTerrain.getGridAltitude(x, z+1);
@@ -151,11 +164,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 				
 				gl.glTexCoord2d(0.0, 0.0);
 				gl.glVertex3d(p0[0], p0[1], p0[2]);
-				gl.glTexCoord2d(4.0, 4.0);
+				gl.glTexCoord2d(0.0, 1.0);
 				gl.glVertex3d(p1[0], p1[1], p1[2]);
-				gl.glTexCoord2d(8.0, 0.0);
+				gl.glTexCoord2d(1.0, 0.0);
 				gl.glVertex3d(p2[0], p2[1], p2[2]);
-				gl.glTexCoord2d(0.0, 0.0);
 				
 				p0[0] = p1[0];
 				p0[1] = p1[1];
@@ -245,7 +257,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 //				gl.glVertex3d(p2[0], p2[1], p2[2]);
 				
 				gl.glEnd();
-				
+				gl.glPopMatrix();
 				System.out.println();
 			}		
 		}
@@ -324,11 +336,24 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 			int height) {
 		// TODO Auto-generated method stub
 		GL2 gl = drawable.getGL().getGL2();
-	    
+	    //GLU glu = new GLU();
         gl.glMatrixMode(GL2.GL_PROJECTION);
         gl.glLoadIdentity();
-       
-        gl.glOrtho(-2,2,-2,2,1,10);
+        
+        GLU glu = new GLU();
+        glu.gluPerspective(60, (float)width/(float)height, 0.5, 20.0);
+        /*
+        double aspect = (1.0 * width) / height;
+        double size = 1.0;
+        if(aspect >=1){
+             gl.glOrtho(-size * aspect, size* aspect, -size, size, 1, 10);
+         } else {
+             gl.glOrtho(-size, size, -size/aspect, size/aspect, 1, 10);
+         }
+         */
+       // gl.glOrtho(-2,2,-2,2,1,10);
+        
+        myTextures[0] = new LevelTexture(gl, grassTexture, grassTextureExt, true);
 	}
 
 	@Override
@@ -336,24 +361,60 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		// TODO Auto-generated method stub
 		switch (e.getKeyCode()) {
 		  
-		 case KeyEvent.VK_UP:
-		       
-				  angleX = (angleX + 10) % 360;
-				  break;
-		 case KeyEvent.VK_DOWN:
-			     
-				  angleX = (angleX - 10) % 360;
-				  break;	
-		 case KeyEvent.VK_LEFT:
-		       
-			  angleY = (angleY + 10) % 360;
-			  break;
-		 case KeyEvent.VK_RIGHT:
-		     
-			  angleY = (angleY - 10) % 360;
-			  break;
-		 default:
-			 break;
+            case KeyEvent.VK_UP:
+                   
+                angleX = (angleX + 10) % 360;
+                break;
+            case KeyEvent.VK_DOWN:
+            	     
+                angleX = (angleX - 10) % 360;
+                break;	
+            case KeyEvent.VK_LEFT:
+                   
+                angleY = (angleY + 10) % 360;
+                break;
+            case KeyEvent.VK_RIGHT:
+                 
+                angleY = (angleY - 10) % 360;
+                break;
+             
+            case KeyEvent.VK_W:
+                
+                posZ += 0.1;
+                break;
+                
+            case KeyEvent.VK_S:
+                
+                posZ -= 0.1;
+                break;
+                
+            case KeyEvent.VK_A:
+                
+                posX += 0.1;
+                break;
+            case KeyEvent.VK_D:
+                posX -= 0.1;
+                break;
+                
+            case KeyEvent.VK_Q:
+                
+                scale -= 0.1;
+                break;
+            case KeyEvent.VK_E:
+                
+                scale += 0.1;
+                break;
+            case KeyEvent.VK_R:
+                
+                posY -= 0.1;
+                break;
+            
+            case KeyEvent.VK_F:
+                
+                posY += 0.1;
+                break;
+            default:
+                break;
 		 }
 		 System.out.println(angleX + " " + angleY);
 	}
