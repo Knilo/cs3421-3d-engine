@@ -11,6 +11,7 @@ import com.jogamp.opengl.glu.GLU;
 
 import javax.swing.JFrame;
 import com.jogamp.opengl.util.FPSAnimator;
+import com.jogamp.opengl.util.gl2.GLUT;
 
 
 
@@ -23,11 +24,12 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 
     private Terrain myTerrain;
     private LevelTexture[] myTextures;
+    private GLUT glut;
     private static int angleY = 0;
     private static int angleX = 0;
     private double posX = -1;
-    private double posY = 0;
-    private double posZ = -7;
+    private double posY = -1;
+    private double posZ = -5;
     private double scale = 0.25;
     private static int framerate = 60;
     private String grassTexture = "grass.bmp";
@@ -94,29 +96,36 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	public void display(GLAutoDrawable drawable) {
 		// TODO Auto-generated method stub
     	GL2 gl = drawable.getGL().getGL2();
-
+    	GLU glu = new GLU();
     	//Forgetting to clear the depth buffer can cause problems 
     	//such as empty black screens.
     	gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
     	
     	gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();  
-      
-        //Move camera      
+        
+        //Move camera
+        
         gl.glTranslated(posX, posY, posZ);    
         
         gl.glRotated(-angleY, 0, 1, 0);
         gl.glRotated(-angleX, 1, 0, 0);
         
         gl.glScaled(scale,scale,scale);
-        
+        //glut.glutSolidTeapot(1.0f);
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);
+
         gl.glPushMatrix();
-        displayTerrain(gl);
+            //trying to change the angle of the terrain so that we can see it from a bird's eye view
+            //however, camera will still move into the terrain.
+            gl.glTranslated (0, 4 *(posZ * Math.sin(Math.toRadians(20))), posZ * Math.cos(Math.toRadians(20)));
+            gl.glRotated(-20, 1, 0, 0);
+            displayTerrain(gl);
         gl.glPopMatrix();
         gl.glPushMatrix();
-        displayTrees(gl);
+            displayTrees(gl);
         gl.glPopMatrix();
+        
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);   
 	}
 
@@ -304,6 +313,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	public void init(GLAutoDrawable drawable) {
 		// TODO Auto-generated method stub
 		GL2 gl = drawable.getGL().getGL2();
+		glut = new GLUT();
     	
     	//If you do not add this line
     	//opengl will draw things in the order you
@@ -314,6 +324,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glEnable(GL2.GL_LIGHTING);
         //Turn on default light
         gl.glEnable(GL2.GL_LIGHT0);
+        float[] pos = {0, 1, 1, 1};
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, pos, 0);
         
         float globAmb[] = {0.9f, 0.9f, 0.9f, 1.0f};
         gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globAmb,0); // Global ambient light.
@@ -341,7 +353,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glLoadIdentity();
         
         GLU glu = new GLU();
-        glu.gluPerspective(60, (float)width/(float)height, 0.5, 20.0);
+        glu.gluPerspective(60, (float)width/(float)height, 0.5, 6.0);
         /*
         double aspect = (1.0 * width) / height;
         double size = 1.0;
