@@ -27,9 +27,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private GLUT glut;
     private static int angleY = 0;
     private static int angleX = 0;
-    private double posX = -1;
-    private double posY = -1;
-    private double posZ = -5;
+    private double posX = 1.1;
+    private double posY = -0.2;
+    private double posZ = -1;
     private double scale = 0.25;
     private static int framerate = 60;
     private String grassTexture = "grass.bmp";
@@ -97,6 +97,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		// TODO Auto-generated method stub
     	GL2 gl = drawable.getGL().getGL2();
     	GLU glu = new GLU();
+    	
     	//Forgetting to clear the depth buffer can cause problems 
     	//such as empty black screens.
     	gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
@@ -106,9 +107,13 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         
         //Move camera
         
-        gl.glTranslated(posX, posY, posZ);    
+        gl.glPushMatrix();
+            gl.glTranslated(0, 0, -1);
+            glut.glutSolidTeapot(0.1f);
+        gl.glPopMatrix();
         
-        gl.glRotated(-angleY, 0, 1, 0);
+        gl.glTranslated(posX, posY, posZ);    
+        gl.glRotated(-angleY + 180, 0, 1, 0);
         gl.glRotated(-angleX, 1, 0, 0);
         
         gl.glScaled(scale,scale,scale);
@@ -118,8 +123,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glPushMatrix();
             //trying to change the angle of the terrain so that we can see it from a bird's eye view
             //however, camera will still move into the terrain.
-            gl.glTranslated (0, 4 *(posZ * Math.sin(Math.toRadians(20))), posZ * Math.cos(Math.toRadians(20)));
-            gl.glRotated(-20, 1, 0, 0);
+            //gl.glTranslated (0, (posZ * Math.sin(Math.toRadians(20))), 0);
+            //gl.glRotated(20, 1, 0, 0);
             displayTerrain(gl);
         gl.glPopMatrix();
         gl.glPushMatrix();
@@ -353,7 +358,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glLoadIdentity();
         
         GLU glu = new GLU();
-        glu.gluPerspective(60, (float)width/(float)height, 0.5, 6.0);
+        glu.gluPerspective(60, (float)width/(float)height, 0.01, 100.0);
         /*
         double aspect = (1.0 * width) / height;
         double size = 1.0;

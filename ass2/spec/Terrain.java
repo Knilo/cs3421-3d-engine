@@ -121,24 +121,29 @@ public class Terrain {
     public double altitude(double x, double z) {
         double altitude = 0;
         //3 corners of the triangle it is in
-        int i,j;
+        try {
         
-        i = (int)Math.floor(x);
-        j = (int)Math.floor(z);
-        double p0[] = {i,this.getGridAltitude(i, j) ,j};
-        
-        i = (int)Math.floor(x);
-        j = (int)Math.ceil(z);
-        double p1[] = {i,this.getGridAltitude(i, j) ,j};
-        
-        i = (int)Math.ceil(x);
-        j = (int)Math.floor(z);
-        double p2[] = {i,this.getGridAltitude(i, j) ,j};
-        
-        double p3[] = {(p2[0] - p1[0])/2, (p2[1]-p1[1])/2}; //Midpoint of p1 and p2.
-        
-        //double v03[] = 
-        
+            int i,j;
+            
+            
+            i = (int)Math.floor(x);
+            j = (int)Math.floor(z);
+            double p0[] = {i,this.getGridAltitude(i, j) ,j};
+            
+            i = (int)Math.floor(x);
+            j = (int)Math.ceil(z);
+            double p1[] = {i,this.getGridAltitude(i, j) ,j};
+            
+            i = (int)Math.ceil(x);
+            j = (int)Math.floor(z);
+            double p2[] = {i,this.getGridAltitude(i, j) ,j};
+            
+            double p3[] = {(p2[0] - p1[0])/2, (p2[1]-p1[1])/2}; //Midpoint of p1 and p2.
+            
+            //double v03[] = 
+        } catch (Exception e) {
+            return 0;
+        }
         return altitude;
     }
 
