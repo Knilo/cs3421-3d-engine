@@ -108,9 +108,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glLoadIdentity();  
         
         //Move camera
-        glu.gluLookAt(0, 0.1, 0, 0 + sinDeg(angleY), 0.1, -1, 0, 1, 0);
+        glu.gluLookAt(0, 0.1, 0, 0 + sinDeg(angleY), 0.1, 0 - cosDeg(angleY), 0, 1, 0);
         gl.glPushMatrix();
-            gl.glTranslated(0, 0, -1);
+            gl.glTranslated(0 + sinDeg(angleY), 0, 0 - cosDeg(angleY));
             glut.glutSolidTeapot(0.1f);
         gl.glPopMatrix();
         
