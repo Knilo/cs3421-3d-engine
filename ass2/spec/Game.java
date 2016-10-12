@@ -28,9 +28,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private GLU glu;
     private static int angleY = 0;
     private static int angleX = 0;
-    private double posX = 1.1;
+    private double posX = 0;
     private double posY = -0.2;
-    private double posZ = -1;
+    private double posZ = -4;
     private double scale = 0.25;
     private static int framerate = 60;
     private String grassTexture = "grass.bmp";
@@ -101,26 +101,27 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     	
     	//Forgetting to clear the depth buffer can cause problems 
     	//such as empty black screens.
+    	gl.glClearColor(1, 1, 1, 1);
     	gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
     	
     	gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();  
         
         //Move camera
-        
+        glu.gluLookAt(0, 0.1, 0, 0 + sinDeg(angleY), 0.1, -1, 0, 1, 0);
         gl.glPushMatrix();
             gl.glTranslated(0, 0, -1);
-            
             glut.glutSolidTeapot(0.1f);
-            
         gl.glPopMatrix();
         
         gl.glTranslated(posX, posY, posZ);
         //gl.glRotated(-angleY + 180, 0, 1, 0);
         //gl.glRotated(-angleX, 1, 0, 0);
         gl.glScaled(scale,scale,scale);
-        glu.gluLookAt(posX, posY, posZ, posX + Math.sin(Math.toRadians(angleY)), posY, posZ + Math.sin(Math.toRadians(angleY)), 0, 1, 0);
-
+        //glu.gluLookAt(0, 0.1, -2, posX + Math.sin(Math.toRadians(angleY)), posY, posZ + Math.sin(Math.toRadians(angleY)), 0, 1, 0);
+        //gl.glPushMatrix();
+        
+        //gl.glPopMatrix();
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);
         
 
@@ -385,19 +386,19 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		  
             case KeyEvent.VK_UP:
                    
-                angleX = (angleX + 10) % 180;
+                angleX = (angleX + 10) % 360;
                 break;
             case KeyEvent.VK_DOWN:
             	     
-                angleX = (angleX - 10) % 180;
+                angleX = (angleX - 10) % 360;
                 break;	
             case KeyEvent.VK_LEFT:
                    
-                angleY = (angleY + 10) % 180;
+                angleY = (angleY + 10) % 360;
                 break;
             case KeyEvent.VK_RIGHT:
                  
-                angleY = (angleY - 10) % 180;
+                angleY = (angleY - 10) % 360;
                 break;
              
             case KeyEvent.VK_W:
@@ -461,6 +462,13 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	void printVector (double [] p, String end) {
 		System.out.print("("+ p[0] + "," + p[1] + "," + p[2]+") " + end);
 	}
+	
+	static double sinDeg (double degree) {
+	    return Math.sin(Math.toRadians(degree));
+	}
+	static double cosDeg (double degree) {
+        return Math.cos(Math.toRadians(degree));
+    }
 	
 }
 /*
