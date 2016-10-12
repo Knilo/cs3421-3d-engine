@@ -25,6 +25,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private Terrain myTerrain;
     private LevelTexture[] myTextures;
     private GLUT glut;
+    private GLU glu;
     private static int angleY = 0;
     private static int angleX = 0;
     private double posX = 1.1;
@@ -109,22 +110,26 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         
         gl.glPushMatrix();
             gl.glTranslated(0, 0, -1);
+            
             glut.glutSolidTeapot(0.1f);
+            
         gl.glPopMatrix();
         
-        gl.glTranslated(posX, posY, posZ);    
-        gl.glRotated(-angleY + 180, 0, 1, 0);
-        gl.glRotated(-angleX, 1, 0, 0);
-        
+        gl.glTranslated(posX, posY, posZ);
+        //gl.glRotated(-angleY + 180, 0, 1, 0);
+        //gl.glRotated(-angleX, 1, 0, 0);
         gl.glScaled(scale,scale,scale);
-        //glut.glutSolidTeapot(1.0f);
+        glu.gluLookAt(posX, posY, posZ, posX + Math.sin(Math.toRadians(angleY)), posY, posZ + Math.sin(Math.toRadians(angleY)), 0, 1, 0);
+
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);
+        
 
         gl.glPushMatrix();
             //trying to change the angle of the terrain so that we can see it from a bird's eye view
             //however, camera will still move into the terrain.
             //gl.glTranslated (0, (posZ * Math.sin(Math.toRadians(20))), 0);
             //gl.glRotated(20, 1, 0, 0);
+            
             displayTerrain(gl);
         gl.glPopMatrix();
         gl.glPushMatrix();
@@ -319,7 +324,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		// TODO Auto-generated method stub
 		GL2 gl = drawable.getGL().getGL2();
 		glut = new GLUT();
-    	
+    	glu = new GLU();
     	//If you do not add this line
     	//opengl will draw things in the order you
     	//draw them in your program
@@ -357,7 +362,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glMatrixMode(GL2.GL_PROJECTION);
         gl.glLoadIdentity();
         
-        GLU glu = new GLU();
+        glu = new GLU();
         glu.gluPerspective(60, (float)width/(float)height, 0.01, 100.0);
         /*
         double aspect = (1.0 * width) / height;
@@ -380,19 +385,19 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		  
             case KeyEvent.VK_UP:
                    
-                angleX = (angleX + 10) % 360;
+                angleX = (angleX + 10) % 180;
                 break;
             case KeyEvent.VK_DOWN:
             	     
-                angleX = (angleX - 10) % 360;
+                angleX = (angleX - 10) % 180;
                 break;	
             case KeyEvent.VK_LEFT:
                    
-                angleY = (angleY + 10) % 360;
+                angleY = (angleY + 10) % 180;
                 break;
             case KeyEvent.VK_RIGHT:
                  
-                angleY = (angleY - 10) % 360;
+                angleY = (angleY - 10) % 180;
                 break;
              
             case KeyEvent.VK_W:
