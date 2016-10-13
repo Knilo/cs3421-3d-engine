@@ -31,6 +31,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private double posX = 0;
     private double posY = -0.2;
     private double posZ = -4;
+    private double momentumZ = 0;
     private double scale = 0.25;
     private static int framerate = 60;
     private String grassTexture = "grass.bmp";
@@ -108,13 +109,22 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glLoadIdentity();  
         
         //Move camera
+        if (momentumZ > 0.5) {
+            momentumZ = 0.5;
+        } else if (momentumZ < -0.5) {
+            momentumZ = -0.5;
+        }
+        posZ += momentumZ * momentumZ * momentumZ;
+        if (momentumZ < 0.02 && momentumZ > -0.02) {
+            momentumZ = 0;
+        } else if (momentumZ < 0) {
+            momentumZ += 0.01;
+        } else if (momentumZ > 0) {
+            momentumZ -= 0.01;
+        }
         double sinShift = sinDeg(angleY);
         double cosShift = cosDeg(angleY);
-        glu.gluLookAt(0, 0.1, 0, 0 + sinShift, 0.1, 0 - cosShift, 0, 1, 0);
-        gl.glPushMatrix();
-            gl.glTranslated(0 + 0.5 * sinShift, 0, 0 - 0.5 * cosShift);
-            glut.glutSolidTeapot(0.1f);
-        gl.glPopMatrix();
+        setCamera(gl, sinShift, cosShift);
         
         gl.glTranslated(posX + 0.5 * sinShift, posY, posZ - 0.5 * cosShift);
         //gl.glRotated(-angleY + 180, 0, 1, 0);
@@ -140,6 +150,16 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glPopMatrix();
         
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);   
+	}
+	
+	private void setCamera(GL2 gl, double xOffset, double zOffset) {
+	    
+        glu.gluLookAt(0, 0.1, 0, 0 + xOffset, 0.1, 0 - zOffset, 0, 1, 0);
+        gl.glPushMatrix();
+            gl.glTranslated(0 + 0.5 * xOffset, 0, 0 - 0.5 * zOffset);
+            glut.glutSolidTeapot(0.1f);
+        gl.glPopMatrix();
+	    
 	}
 
 	private void displayTrees(GL2 gl) {
@@ -366,7 +386,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glLoadIdentity();
         
         glu = new GLU();
-        glu.gluPerspective(60, (float)width/(float)height, 0.01, 100.0);
+        glu.gluPerspective(75, (float)width/(float)height, 0.01, 100.0);
         /*
         double aspect = (1.0 * width) / height;
         double size = 1.0;
@@ -405,12 +425,14 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
              
             case KeyEvent.VK_W:
                 
-                posZ += 0.1;
+                //posZ += 0.1;
+                momentumZ += 0.3;
                 break;
                 
             case KeyEvent.VK_S:
                 
-                posZ -= 0.1;
+                //posZ -= 0.1;
+                momentumZ -= 0.3;
                 break;
                 
             case KeyEvent.VK_A:
