@@ -136,7 +136,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         //gl.glPopMatrix();
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);
         
-
+        GLUT glut = new GLUT();
         gl.glPushMatrix();
             //trying to change the angle of the terrain so that we can see it from a bird's eye view
             //however, camera will still move into the terrain.
@@ -145,7 +145,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
             displayTerrain(gl);
         gl.glPopMatrix();
         gl.glPushMatrix();
-            displayTrees(gl);
+            displayTrees(gl, glut);
         gl.glPopMatrix();
         
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);   
@@ -161,107 +161,33 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	    
 	}
 
-	private void displayTrees(GL2 gl) {
+	private void displayTrees(GL2 gl, GLUT glut) {
 		double trunkHeight = 5;
-		double leavesRadius = 4;
+		double trunkRadius = 1;
+		double leavesRadius = 3;
 		
 		for(Tree currTree : this.myTerrain.trees()) {
 			double currTreePos[] = currTree.getPosition();	
 			gl.glPushMatrix();
-			gl.glTranslated(currTreePos[0], currTreePos[1], currTreePos[2]);
-			gl.glScaled(0.1, 0.1, 0.1);
-			// draw trunk		
-			drawTrunk(gl, trunkHeight);			
-			// draw leaves
-			gl.glTranslated(0, trunkHeight + leavesRadius, 0);
-			drawLeaves(gl, leavesRadius);
+				gl.glTranslated(currTreePos[0], currTreePos[1], currTreePos[2]);
+				gl.glScaled(0.1, 0.1, 0.1);
+				// draw trunk		
+				drawTrunk(gl, glut, trunkRadius, trunkHeight);			
+				// draw leaves
+				gl.glTranslated(0, trunkHeight + leavesRadius - 1, 0);
+				drawLeaves(gl, glut, leavesRadius);
 			gl.glPopMatrix();
 		}
 	}
 
-	private void drawTrunk(GL2 gl, double height) {
-		gl.glPushMatrix();
-		
-		gl.glRotated(90, 1, 0, 0);
-		
-		int slices = 64;
-		double z1 = 0;
-    	double z2 = -height;
-    	gl.glPolygonMode(GL.GL_BACK,GL2.GL_LINE);
-    	//Front circle
-    
-    	gl.glBegin(GL2.GL_TRIANGLE_FAN);{
-    	
-    		 gl.glNormal3d(0,0,1);
-    		 gl.glVertex3d(0,0,z1);
-    		 double angleStep = 2*Math.PI/slices;
-             for (int i = 0; i <= slices ; i++){
-                 double a0 = i * angleStep;
-                 double x0 = Math.cos(a0);
-                 double y0 = Math.sin(a0);
-
-                gl.glVertex3d(x0,y0,z1);             
-             }
-                 
-                 
-    	}gl.glEnd();
-    	
-    	//Back circle
-    	gl.glBegin(GL2.GL_TRIANGLE_FAN);{
-       
-   		 gl.glNormal3d(0,0,-1);
-   		 gl.glVertex3d(0,0,z2);
-   		 double angleStep = 2*Math.PI/slices;
-            for (int i = 0; i <= slices ; i++){
-                
-            	double a0 = 2*Math.PI - i * angleStep;
-                            
-                double x0 = Math.cos(a0);
-                double y0 = Math.sin(a0);
-
-                gl.glVertex3d(x0,y0,z2);
-                System.out.println("Back " + x0 + " " + y0);
-            }
-                
-                
-    	}gl.glEnd();
-    	  
-    	//Sides of the cylinder
-    	gl.glBegin(GL2.GL_QUADS);
-        {
-            double angleStep = 2*Math.PI/slices;
-            for (int i = 0; i <= slices ; i++){
-                double a0 = i * angleStep;
-                double a1 = ((i+1) % slices) * angleStep;
-                
-                //Calculate vertices for the quad
-                double x0 = Math.cos(a0);
-                double y0 = Math.sin(a0);
-
-                double x1 = Math.cos(a1);
-                double y1 = Math.sin(a1);
-
-                gl.glNormal3d(x0, y0, 0);
-                             
-                gl.glVertex3d(x0, y0, z1);
-                gl.glVertex3d(x0, y0, z2);  
-                
-                
-                gl.glNormal3d(x1, y1, 0);
-                
-                gl.glVertex3d(x1, y1, z2);
-                gl.glVertex3d(x1, y1, z1);               
-               
-               
-            }
-
-        }
-        gl.glEnd();
+	private void drawTrunk(GL2 gl, GLUT glut, double radius, double height) {
+		gl.glPushMatrix();	
+			gl.glRotated(-90, 1, 0, 0);
+			glut.glutSolidCylinder(radius, height, 40, 40);
         gl.glPopMatrix();
 	}
 
-	private void drawLeaves(GL2 gl, double radius) {
-		GLUT glut = new GLUT();
+	private void drawLeaves(GL2 gl, GLUT glut, double radius) {
         glut.glutSolidSphere(radius, 40, 40);
 	}
 
