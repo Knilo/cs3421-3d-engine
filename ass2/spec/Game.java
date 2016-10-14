@@ -134,9 +134,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         //gl.glPushMatrix();
         
         //gl.glPopMatrix();
-        gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);
+        //gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_LINE);
         
-        GLUT glut = new GLUT();
         gl.glPushMatrix();
             //trying to change the angle of the terrain so that we can see it from a bird's eye view
             //however, camera will still move into the terrain.
@@ -145,7 +144,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
             displayTerrain(gl);
         gl.glPopMatrix();
         gl.glPushMatrix();
-            displayTrees(gl, glut);
+            displayTrees(gl);
         gl.glPopMatrix();
         
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);   
@@ -156,12 +155,13 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         glu.gluLookAt(0, 0.1, 0, 0 + xOffset, 0.1, 0 - zOffset, 0, 1, 0);
         gl.glPushMatrix();
             gl.glTranslated(0 + 0.5 * xOffset, 0, 0 - 0.5 * zOffset);
+            gl.glScaled(0.2, 0.2, 0.2);
             glut.glutSolidTeapot(0.1f);
         gl.glPopMatrix();
 	    
 	}
 
-	private void displayTrees(GL2 gl, GLUT glut) {
+	private void displayTrees(GL2 gl) {
 		double trunkHeight = 5;
 		double trunkRadius = 1;
 		double leavesRadius = 3;
@@ -172,22 +172,22 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 				gl.glTranslated(currTreePos[0], currTreePos[1], currTreePos[2]);
 				gl.glScaled(0.1, 0.1, 0.1);
 				// draw trunk		
-				drawTrunk(gl, glut, trunkRadius, trunkHeight);			
+				drawTrunk(gl, trunkRadius, trunkHeight);			
 				// draw leaves
 				gl.glTranslated(0, trunkHeight + leavesRadius - 1, 0);
-				drawLeaves(gl, glut, leavesRadius);
+				drawLeaves(leavesRadius);
 			gl.glPopMatrix();
 		}
 	}
 
-	private void drawTrunk(GL2 gl, GLUT glut, double radius, double height) {
+	private void drawTrunk(GL2 gl, double radius, double height) {
 		gl.glPushMatrix();	
 			gl.glRotated(-90, 1, 0, 0);
 			glut.glutSolidCylinder(radius, height, 40, 40);
         gl.glPopMatrix();
 	}
 
-	private void drawLeaves(GL2 gl, GLUT glut, double radius) {
+	private void drawLeaves(double radius) {
         glut.glutSolidSphere(radius, 40, 40);
 	}
 
@@ -299,28 +299,6 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 				
 				gl.glNormal3d(n3[0], n3[1], n3[2]);
 				gl.glVertex3d(p2[0], p2[1], p2[2]);
-				
-//				p0[0] = p1[0];
-//				p0[1] = p1[1];
-//				p0[2] = p1[2];
-//				
-//				p1[0] = p2[0];
-//				p1[1] = p2[1];
-//				p1[2] = p2[2];
-//				
-//				p2[0] = x+1;
-//				p2[1] = this.myTerrain.getGridAltitude(x+1,z+1);
-//				p2[2] = z+1;
-//				
-//				double [] n4 = getNormal(p0,p1,p2);
-//				//n3 = normalise(n3);
-//				printPoint(p0,"");
-//				printPoint(p1,"");
-//				printPoint(p2,": ");
-//				printVector(n3,"\n");
-//				
-//				gl.glNormal3d(n4[0], n4[1], n4[2]);
-//				gl.glVertex3d(p2[0], p2[1], p2[2]);
 				
 				gl.glEnd();
 				gl.glPopMatrix();
