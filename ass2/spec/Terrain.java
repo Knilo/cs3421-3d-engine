@@ -119,31 +119,38 @@ public class Terrain {
      * @return
      */
     public double altitude(double x, double z) {
-        double altitude = 0;
-        //3 corners of the triangle it is in
-        try {
+    	double altitude = 0;
+        // 3 corners of the triangle it is in
+        int i,j;
         
-            int i,j;
-            
-            
-            i = (int)Math.floor(x);
+        i = (int)Math.floor(x);
+        j = (int)Math.ceil(z);
+        double p0[] = {i,this.getGridAltitude(i, j) ,j};
+   
+        i = (int)Math.ceil(x);
+        j = (int)Math.floor(z);
+        double p1[] = {i,this.getGridAltitude(i, j) ,j};
+             
+        if (z - Math.floor(z) < 0.5) {       
+        	i = (int)Math.floor(x);
             j = (int)Math.floor(z);
-            double p0[] = {i,this.getGridAltitude(i, j) ,j};
-            
-            i = (int)Math.floor(x);
-            j = (int)Math.ceil(z);
-            double p1[] = {i,this.getGridAltitude(i, j) ,j};
-            
-            i = (int)Math.ceil(x);
-            j = (int)Math.floor(z);
-            double p2[] = {i,this.getGridAltitude(i, j) ,j};
-            
-            double p3[] = {(p2[0] - p1[0])/2, (p2[1]-p1[1])/2}; //Midpoint of p1 and p2.
-            
-            //double v03[] = 
-        } catch (Exception e) {
-            return 0;
+        } else {
+        	i = (int)Math.ceil(x);
+            j = (int)Math.ceil(z);           
         }
+        
+        double p2[] = {i,this.getGridAltitude(i, j) ,j};
+        
+        // Find the equation of the plane that passes through the 3 points.
+        // Equation of a plane: a(x-x0) + b(y-y0) + c(z-z0) = 0
+        // where (x0,y0,z0) is any point on the plane
+        // and <a,b,c> is a vector perpendicular to the plane
+        double n[] = getNormal(p2, p1, p0);
+        
+        // From this equation of a plane we can figure out the height by substituting in the non-integer coordinates.
+        // y = (a(x0-x) + c(z0 - z))/b + y0
+        altitude = (n[0]*(p0[0] - x) + n[2]*(p0[2] - z))/n[1] + p0[1];
+     
         return altitude;
     }
 
@@ -170,6 +177,23 @@ public class Terrain {
     public void addRoad(double width, double[] spine) {
         Road road = new Road(width, spine);
         myRoads.add(road);        
+    }
+    
+    double [] getNormal(double[] p0, double[] p1, double[] p2){
+    	double u[] = {p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]};
+    	double v[] = {p2[0] - p0[0], p2[1] - p0[1], p2[2] - p0[2]};
+    	
+    	return cross(u,v);
+    	
+    }
+	
+	double [] cross(double u [], double v[]){
+    	double crossProduct[] = new double[3];
+    	crossProduct[0] = u[1]*v[2] - u[2]*v[1];
+    	crossProduct[1] = u[2]*v[0] - u[0]*v[2];
+    	crossProduct[2] = u[0]*v[1] - u[1]*v[0];
+    	//System.out.println("CP " + crossProduct[0] + " " +  crossProduct[1] + " " +  crossProduct[2]);
+    	return crossProduct;
     }
 
 
