@@ -30,12 +30,12 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private static int angleY = 0;
     private static int angleX = 0;
     private double posX = 0;
-    private double posY = -0.2;
-    private double posZ = -4;
+    private double posY = 0;
+    private double posZ = -0;
     private double momentumX = 0;
     private double momentumZ = 0;
     private final double maxMomentum = 0.35;
-    private double scale = 0.25;
+    private double scale = 1;
     private static int framerate = 60;
     private String grassTexture = "grass.bmp";
     private String grassTextureExt = "bmp";
@@ -120,6 +120,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         
         //Move camera
         updateMomentum();
+        //updateHeight(); //doesn't appear to work
         double sinShift = sinDeg(angleY);
         double cosShift = cosDeg(angleY);
         setCamera(gl, sinShift, cosShift);
@@ -176,6 +177,15 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         } else if (momentumX > 0) {
             momentumX -= 0.01;
         }
+	    
+	}
+	
+	private void updateHeight() { //doesn't appear to work
+	    try {
+	        posY = myTerrain.altitude(posX, posZ);
+	    } catch (ArrayIndexOutOfBoundsException e) {
+	        posY = 0;
+	    }
 	    
 	}
 	
