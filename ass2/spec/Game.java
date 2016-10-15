@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.glu.GLU;
+import com.jogamp.opengl.glu.GLUquadric;
 
 import javax.swing.JFrame;
 import com.jogamp.opengl.util.FPSAnimator;
@@ -190,8 +191,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	}
 
 	private void drawLeaves(GL2 gl, double radius) {
+	    GLUquadric sphere = glu.gluNewQuadric();
 	    gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[1].getTextureId());
-        glut.glutSolidSphere(radius, 40, 40);
+        //glut.glutSolidSphere(radius, 40, 40);
+	    glu.gluQuadricTexture(sphere, true);
+        glu.gluSphere(sphere, 4, 20, 20);
         gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[0].getTextureId());
 	}
 
