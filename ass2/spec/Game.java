@@ -120,7 +120,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         
         //Move camera
         updateMomentum();
-        //updateHeight(); //doesn't appear to work
+        updateHeight(); //doesn't appear to work
         double sinShift = sinDeg(angleY);
         double cosShift = cosDeg(angleY);
         setCamera(gl, sinShift, cosShift);
@@ -181,6 +181,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	}
 	
 	private void updateHeight() { //doesn't appear to work
+		System.out.println("############################################ x,z: " + posX +","+ posZ );
 	    try {
 	        posY = myTerrain.altitude(posX, posZ);
 	    } catch (ArrayIndexOutOfBoundsException e) {
