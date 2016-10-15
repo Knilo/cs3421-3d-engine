@@ -32,7 +32,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private double posX = 0;
     private double posY = -0.2;
     private double posZ = -4;
+    private double momentumX = 0;
     private double momentumZ = 0;
+    private final double maxMomentum = 0.35;
     private double scale = 0.25;
     private static int framerate = 60;
     private String grassTexture = "grass.bmp";
@@ -117,19 +119,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glLoadIdentity();  
         
         //Move camera
-        if (momentumZ > 0.5) {
-            momentumZ = 0.5;
-        } else if (momentumZ < -0.5) {
-            momentumZ = -0.5;
-        }
-        posZ += momentumZ * momentumZ * momentumZ;
-        if (momentumZ < 0.02 && momentumZ > -0.02) {
-            momentumZ = 0;
-        } else if (momentumZ < 0) {
-            momentumZ += 0.01;
-        } else if (momentumZ > 0) {
-            momentumZ -= 0.01;
-        }
+        updateMomentum();
         double sinShift = sinDeg(angleY);
         double cosShift = cosDeg(angleY);
         setCamera(gl, sinShift, cosShift);
@@ -156,6 +146,37 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glPopMatrix();
         
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);   
+	}
+	
+	private void updateMomentum() {
+	    if (momentumZ > maxMomentum) {
+            momentumZ = maxMomentum;
+        } else if (momentumZ < -maxMomentum) {
+            momentumZ = -maxMomentum;
+        }
+        posZ += momentumZ * momentumZ * momentumZ;
+        if (momentumZ < 0.02 && momentumZ > -0.02) {
+            momentumZ = 0;
+        } else if (momentumZ < 0) {
+            momentumZ += 0.01;
+        } else if (momentumZ > 0) {
+            momentumZ -= 0.01;
+        }
+        
+        if (momentumX > maxMomentum) {
+            momentumX = maxMomentum;
+        } else if (momentumX < -maxMomentum) {
+            momentumX = -maxMomentum;
+        }
+        posX += momentumX * momentumX * momentumX;
+        if (momentumX < 0.02 && momentumX > -0.02) {
+            momentumX = 0;
+        } else if (momentumX < 0) {
+            momentumX += 0.01;
+        } else if (momentumX > 0) {
+            momentumX -= 0.01;
+        }
+	    
 	}
 	
 	private void setCamera(GL2 gl, double xOffset, double zOffset) {
@@ -451,21 +472,21 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
             case KeyEvent.VK_W:
                 
                 //posZ += 0.1;
-                momentumZ += 0.3;
+                momentumZ += 0.2;
                 break;
                 
             case KeyEvent.VK_S:
                 
                 //posZ -= 0.1;
-                momentumZ -= 0.3;
+                momentumZ -= 0.2;
                 break;
                 
             case KeyEvent.VK_A:
                 
-                posX += 0.1;
+                momentumX += 0.2;
                 break;
             case KeyEvent.VK_D:
-                posX -= 0.1;
+                momentumX -= 0.2;
                 break;
                 
             case KeyEvent.VK_Q:
