@@ -36,6 +36,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private static int framerate = 60;
     private String grassTexture = "grass.bmp";
     private String grassTextureExt = "bmp";
+    private String leafTexture = "leaves.jpg";
+    private String leafTextureExt = "jpg";
     public Game(Terrain terrain) {
     	super("Assignment 2");
         myTerrain = terrain;
@@ -175,7 +177,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 				drawTrunk(gl, trunkRadius, trunkHeight);			
 				// draw leaves
 				gl.glTranslated(0, trunkHeight + leavesRadius - 1, 0);
-				drawLeaves(leavesRadius);
+				drawLeaves(gl, leavesRadius);
 			gl.glPopMatrix();
 		}
 	}
@@ -187,8 +189,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glPopMatrix();
 	}
 
-	private void drawLeaves(double radius) {
+	private void drawLeaves(GL2 gl, double radius) {
+	    gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[1].getTextureId());
         glut.glutSolidSphere(radius, 40, 40);
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[0].getTextureId());
 	}
 
 	private void displayTerrain(GL2 gl) {
@@ -200,6 +204,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		
 		//specifiy how texture values combine with current surface color values.
 		gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE );
+		gl.glTexParameteri(GL2.GL_TEXTURE, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
+		gl.glTexParameteri(GL2.GL_TEXTURE, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
 		for (int x = 0; x < d.getWidth()-1; x++) { //
 			for (int z = 0; z < d.getHeight()-1; z++) {
 			    gl.glPushMatrix();
@@ -254,6 +260,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 				printVector(n1,"\n");
 				
 				gl.glNormal3d(n1[0], n1[1], n1[2]);
+				gl.glTexCoord2d(0.0, 0.0);
 				gl.glVertex3d(p2[0], p2[1], p2[2]);	
 				
 				p0[0] = p1[0];
@@ -276,6 +283,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 				printVector(n2,"\n");
 				
 				gl.glNormal3d(n2[0], n2[1], n2[2]);
+				gl.glTexCoord2d(0.0, 1.0);
 				gl.glVertex3d(p2[0], p2[1], p2[2]);
 				
 				p0[0] = p1[0];
@@ -298,6 +306,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 				printVector(n3,"\n");
 				
 				gl.glNormal3d(n3[0], n3[1], n3[2]);
+				gl.glTexCoord2d(1.0, 0.0);
 				gl.glVertex3d(p2[0], p2[1], p2[2]);
 				
 				gl.glEnd();
@@ -374,8 +383,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         
         //enable textures
         gl.glEnable(GL2.GL_TEXTURE_2D);
-        myTextures = new LevelTexture[1];
+        myTextures = new LevelTexture[2];
         myTextures[0] = new LevelTexture(gl, grassTexture, grassTextureExt, true);
+        myTextures[1] = new LevelTexture(gl, leafTexture, leafTextureExt, true);
 	}
 
 	@Override
