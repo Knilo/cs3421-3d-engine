@@ -37,8 +37,13 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private static int framerate = 60;
     private String grassTexture = "grass.bmp";
     private String grassTextureExt = "bmp";
+    private final int textureGrass = 0;
     private String leafTexture = "leaves.jpg";
     private String leafTextureExt = "jpg";
+    private final int textureLeaf = 1;
+    private String trunkTexture = "trunk.jpg";
+    private String trunkTextureExt = "jpg";
+    private final int textureTrunk = 2;
     public Game(Terrain terrain) {
     	super("Assignment 2");
         myTerrain = terrain;
@@ -186,17 +191,19 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	private void drawTrunk(GL2 gl, double radius, double height) {
 		gl.glPushMatrix();	
 			gl.glRotated(-90, 1, 0, 0);
+			gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[textureTrunk].getTextureId());
 			glut.glutSolidCylinder(radius, height, 40, 40);
+			
         gl.glPopMatrix();
 	}
 
 	private void drawLeaves(GL2 gl, double radius) {
 	    GLUquadric sphere = glu.gluNewQuadric();
-	    gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[1].getTextureId());
+	    gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[textureLeaf].getTextureId());
         //glut.glutSolidSphere(radius, 40, 40);
 	    glu.gluQuadricTexture(sphere, true);
         glu.gluSphere(sphere, 4, 20, 20);
-        gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[0].getTextureId());
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[textureGrass].getTextureId());
 	}
 
 	private void displayTerrain(GL2 gl) {
@@ -210,6 +217,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE );
 		gl.glTexParameteri(GL2.GL_TEXTURE, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
 		gl.glTexParameteri(GL2.GL_TEXTURE, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
+		
 		for (int x = 0; x < d.getWidth()-1; x++) { //
 			for (int z = 0; z < d.getHeight()-1; z++) {
 			    gl.glPushMatrix();
@@ -236,7 +244,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 				gl.glNormal3d(n0[0], n0[1], n0[2]);
 				
 				//use textures here
-				gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[0].getTextureId());
+				gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[textureGrass].getTextureId());
 				
 				gl.glTexCoord2d(0.0, 0.0);
 				gl.glVertex3d(p0[0], p0[1], p0[2]);
@@ -387,9 +395,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         
         //enable textures
         gl.glEnable(GL2.GL_TEXTURE_2D);
-        myTextures = new LevelTexture[2];
+        myTextures = new LevelTexture[3];
         myTextures[0] = new LevelTexture(gl, grassTexture, grassTextureExt, true);
         myTextures[1] = new LevelTexture(gl, leafTexture, leafTextureExt, true);
+        myTextures[2] = new LevelTexture(gl, trunkTexture, trunkTextureExt, true);
 	}
 
 	@Override
