@@ -1,6 +1,7 @@
 package ass2.spec;
 
 import java.awt.Dimension;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,38 +120,61 @@ public class Terrain {
      * @return
      */
     public double altitude(double x, double z) {
-    	double altitude = 0;
-        // 3 corners of the triangle it is in
-        int i,j;
-        
-        i = (int)Math.floor(x);
-        j = (int)Math.ceil(z);
-        double p0[] = {i,this.getGridAltitude(i, j) ,j};
-   
-        i = (int)Math.ceil(x);
-        j = (int)Math.floor(z);
-        double p1[] = {i,this.getGridAltitude(i, j) ,j};
-             
-        if (z - Math.floor(z) < 0.5) {       
-        	i = (int)Math.floor(x);
-            j = (int)Math.floor(z);
-        } else {
-        	i = (int)Math.ceil(x);
-            j = (int)Math.ceil(z);           
-        }
-        
-        double p2[] = {i,this.getGridAltitude(i, j) ,j};
-        
-        // Find the equation of the plane that passes through the 3 points.
-        // Equation of a plane: a(x-x0) + b(y-y0) + c(z-z0) = 0
-        // where (x0,y0,z0) is any point on the plane
-        // and <a,b,c> is a vector perpendicular to the plane
-        double n[] = getNormal(p2, p1, p0);
-        
-        // From this equation of a plane we can figure out the height by substituting in the non-integer coordinates.
-        // y = (a(x0-x) + c(z0 - z))/b + y0
-        altitude = (n[0]*(p0[0] - x) + n[2]*(p0[2] - z))/n[1] + p0[1];
-     
+    	double altitude;
+    	if (x == Math.floor(x) && z == Math.floor(z)) {
+    		// x and z is an integer
+    		altitude = this.getGridAltitude((int)x, (int)z);
+    	} else {
+	        // 3 corners of the triangle it is in
+	        int i,j;
+	        
+	        i = (int)Math.floor(x);
+	        j = (int)Math.floor(z);
+	        double p0[] = {i,this.getGridAltitude(i, j) ,j};
+	        
+	        if(x == Math.floor(x)) {
+	        	x += 1;
+	        } else {
+	        	i = (int)Math.ceil(x);
+	        }
+	        
+	        if(z == Math.floor(z)) {
+	        	z += 1;
+	        } else {
+	        	j = (int)Math.ceil(z);
+	        }
+	        
+	        
+	        double p1[] = {i,this.getGridAltitude(i, j) ,j};
+	        
+	        
+	        //Need to come out with a smarter function to determine the third point of the triangle in which the point is in
+	        if (z - Math.floor(z) <= 0.5) { 
+	        	
+	        	i = (int)Math.ceil(x);
+	            j = (int)Math.floor(z);
+	            
+	            
+	        } else {
+	        	i = (int)Math.floor(x);
+	            j = (int)Math.ceil(z);           
+	        }
+	        
+	        
+	        
+	        double p2[] = {i,this.getGridAltitude(i, j) ,j};
+	        System.out.println("In triangle: " +p0[0]+"," +p0[2]+" "+p1[0]+"," +p1[2]+" "+p2[0]+"," +p2[2]);
+	        
+	        // Find the equation of the plane that passes through the 3 points.
+	        // Equation of a plane: a(x-x0) + b(y-y0) + c(z-z0) = 0
+	        // where (x0,y0,z0) is any point on the plane
+	        // and <a,b,c> is a vector perpendicular to the plane
+	        double n[] = getNormal(p2, p1, p0);
+	        
+	        // From this equation of a plane we can figure out the height by substituting in the non-integer coordinates.
+	        // y = (a(x0-x) + c(z0 - z))/b + y0
+	        altitude = (n[0]*(p0[0] - x) + n[2]*(p0[2] - z))/n[1] + p0[1];
+    	}
         return altitude;
     }
 

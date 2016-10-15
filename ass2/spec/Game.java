@@ -5,6 +5,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.text.DecimalFormat;
+
 import com.jogamp.opengl.*;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.jogamp.opengl.glu.GLU;
@@ -119,15 +121,24 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glLoadIdentity();  
         
         //Move camera
-        updateMomentum();
-        updateHeight(); //doesn't appear to work
+        
+        //round off numbers to 1 decimal place for now to make debugging/math easier
+        DecimalFormat df = new DecimalFormat("#.##");       
+        posX = Double.parseDouble(df.format(posX));	
+        posZ = Double.parseDouble(df.format(posZ));
+        
+        //updateMomentum();
+        updateHeight();
+        
+        
         double sinShift = sinDeg(angleY);
         double cosShift = cosDeg(angleY);
         setCamera(gl, sinShift, cosShift);
         
-        gl.glTranslated(posX + 0.5 * sinShift, posY, posZ - 0.5 * cosShift);
+        gl.glTranslated(-posX + 0.5 * sinShift, posY, posZ - 0.5 * cosShift);
         //gl.glRotated(-angleY + 180, 0, 1, 0);
         //gl.glRotated(-angleX, 1, 0, 0);
+        gl.glRotated(90, 0, 1, 0);
         gl.glScaled(scale,scale,scale);
         //glu.gluLookAt(0, 0.1, -2, posX + Math.sin(Math.toRadians(angleY)), posY, posZ + Math.sin(Math.toRadians(angleY)), 0, 1, 0);
         //gl.glPushMatrix();
@@ -181,11 +192,13 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	}
 	
 	private void updateHeight() { //doesn't appear to work
-		System.out.println("############################################ x,z: " + posX +","+ posZ );
+		System.out.println("############################################ x,z: " + posX +","+-posZ );
+		
 	    try {
-	        posY = myTerrain.altitude(posX, posZ);
+	        posY = -myTerrain.altitude(posX, posZ);
+	        System.out.println("############################################ height: " + -posY);
 	    } catch (ArrayIndexOutOfBoundsException e) {
-	        posY = 0;
+	       posY = 0;
 	    }
 	    
 	}
@@ -355,7 +368,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 				
 				gl.glEnd();
 				gl.glPopMatrix();
-				System.out.println();
+				//System.out.println();
 			}		
 		}
 		
@@ -465,11 +478,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		  
             case KeyEvent.VK_UP:
                    
-                angleX = (angleX + 10) % 360;
+                //angleX = (angleX + 10) % 360;
                 break;
             case KeyEvent.VK_DOWN:
             	     
-                angleX = (angleX - 10) % 360;
+                //angleX = (angleX - 10) % 360;
                 break;	
             case KeyEvent.VK_LEFT:
                    
@@ -482,22 +495,23 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
              
             case KeyEvent.VK_W:
                 
-                //posZ += 0.1;
-                momentumZ += 0.2;
+                posZ += 0.1;
+                //momentumZ += 0.2;
                 break;
                 
             case KeyEvent.VK_S:
                 
-                //posZ -= 0.1;
-                momentumZ -= 0.2;
+                posZ -= 0.1;
+                //momentumZ -= 0.2;
                 break;
                 
             case KeyEvent.VK_A:
-                
-                momentumX += 0.2;
+            	posX -= 0.1;
+                //momentumX += 0.2;
                 break;
             case KeyEvent.VK_D:
-                momentumX -= 0.2;
+            	posX += 0.1;
+                //momentumX -= 0.2;
                 break;
                 
             case KeyEvent.VK_Q:
@@ -536,12 +550,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	}
 	
 	void printPoint (double [] p, String end) {
-		System.out.print("["+ p[0] + "," + p[2]+"] (" +p[1] + ") " + end);
 		//System.out.print("["+ p[0] + "," + p[2]+"] (" +p[1] + ") " + end);
 	}
 	
 	void printVector (double [] p, String end) {
-		System.out.print("("+ p[0] + "," + p[1] + "," + p[2]+") " + end);
+		//System.out.print("("+ p[0] + "," + p[1] + "," + p[2]+") " + end);
 	}
 	
 	static double sinDeg (double degree) {
