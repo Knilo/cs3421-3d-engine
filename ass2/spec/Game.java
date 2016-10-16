@@ -135,7 +135,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         double cosShift = cosDeg(angleY);
         setCamera(gl, sinShift, cosShift);
         
-        gl.glTranslated(-posX + 0.5 * sinShift, posY, posZ - 0.5 * cosShift);
+        gl.glTranslated(-posX + 0.5 * sinShift, -posY, posZ - 0.5 * cosShift);
         //gl.glRotated(-angleY + 180, 0, 1, 0);
         //gl.glRotated(-angleX, 1, 0, 0);
         gl.glRotated(90, 0, 1, 0);
@@ -192,11 +192,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	}
 	
 	private void updateHeight() { //doesn't appear to work
-		System.out.println("############################################ x,z: " + posX +","+-posZ );
+		System.out.println("############################################ x,z: " + posX +","+posZ );
 		
 	    try {
-	        posY = -myTerrain.altitude(posX, posZ);
-	        System.out.println("############################################ height: " + -posY);
+	        posY = myTerrain.altitude(posX, posZ);
+	        System.out.println("############################################ height: " + posY);
 	    } catch (ArrayIndexOutOfBoundsException e) {
 	       posY = 0;
 	    }
@@ -205,12 +205,14 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	
 	private void setCamera(GL2 gl, double xOffset, double zOffset) {
 	    
-        glu.gluLookAt(0, 0.1, 0, 0 + xOffset, 0.1, 0 - zOffset, 0, 1, 0);
+        
+		glu.gluLookAt(0, 0.1, 0, 0 + xOffset, 0.1, 0 - zOffset, 0, 1, 0);
         gl.glPushMatrix();
             gl.glTranslated(0 + 0.5 * xOffset, 0, 0 - 0.5 * zOffset);
             gl.glScaled(0.2, 0.2, 0.2);
             glut.glutSolidTeapot(0.1f);
         gl.glPopMatrix();
+        
 	    
 	}
 
