@@ -127,7 +127,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         posX = Double.parseDouble(df.format(posX));	
         posZ = Double.parseDouble(df.format(posZ));
         
-        //updateMomentum();
+        updateMomentum();
         updateHeight();
         
         
@@ -141,11 +141,15 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glRotated(90, 0, 1, 0);
         gl.glScaled(scale,scale,scale);
         //glu.gluLookAt(0, 0.1, -2, posX + Math.sin(Math.toRadians(angleY)), posY, posZ + Math.sin(Math.toRadians(angleY)), 0, 1, 0);
-        //gl.glPushMatrix();
-        
-        //gl.glPopMatrix();
+
         //gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_LINE);
-        
+
+        //gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR); //enable trilinear filtering (mipmapping)
+        float fLargest[] = new float[1];
+        gl.glGetFloatv(GL.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, fLargest,0);
+        //gl.glTexParameterf(GL.GL_TEXTURE_2D,
+        //        GL.GL_TEXTURE_MAX_ANISOTROPY_EXT,
+        //        fLargest[0]);
         gl.glPushMatrix();
             //trying to change the angle of the terrain so that we can see it from a bird's eye view
             //however, camera will still move into the terrain.
@@ -239,18 +243,23 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		gl.glPushMatrix();	
 			gl.glRotated(-90, 1, 0, 0);
 			gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[textureTrunk].getTextureId());
-			glut.glutSolidCylinder(radius, height, 40, 40);
+			///glut.glutSolidCylinder(radius, height, 40, 40);
+			GLUquadric cylinder = glu.gluNewQuadric();
+			glu.gluQuadricTexture(cylinder, true);
+			glu.gluCylinder(cylinder, 2, 1, 4, 20, 20);
 			
         gl.glPopMatrix();
 	}
 
 	private void drawLeaves(GL2 gl, double radius) {
-	    GLUquadric sphere = glu.gluNewQuadric();
-	    gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[textureLeaf].getTextureId());
-        //glut.glutSolidSphere(radius, 40, 40);
-	    glu.gluQuadricTexture(sphere, true);
-        glu.gluSphere(sphere, 4, 20, 20);
-        gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[textureGrass].getTextureId());
+	    gl.glPushMatrix();
+    	    GLUquadric sphere = glu.gluNewQuadric();
+    	    gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[textureLeaf].getTextureId());
+            //glut.glutSolidSphere(radius, 40, 40);
+    	    glu.gluQuadricTexture(sphere, true);
+            glu.gluSphere(sphere, 4, 20, 20);
+            gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[textureGrass].getTextureId());
+        gl.glPopMatrix();
 	}
 
 	private void displayTerrain(GL2 gl) {
@@ -471,6 +480,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
        // gl.glOrtho(-2,2,-2,2,1,10);
         
         myTextures[0] = new LevelTexture(gl, grassTexture, grassTextureExt, true);
+        myTextures[1] = new LevelTexture(gl, leafTexture, leafTextureExt, true);
+        myTextures[2] = new LevelTexture(gl, trunkTexture, trunkTextureExt, true);
 	}
 
 	@Override
@@ -497,23 +508,23 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
              
             case KeyEvent.VK_W:
                 
-                posZ += 0.1;
-                //momentumZ += 0.2;
+                //posZ += 0.1;
+                momentumZ += 0.2;
                 break;
                 
             case KeyEvent.VK_S:
                 
-                posZ -= 0.1;
-                //momentumZ -= 0.2;
+                //posZ -= 0.1;
+                momentumZ -= 0.2;
                 break;
                 
             case KeyEvent.VK_A:
-            	posX -= 0.1;
-                //momentumX += 0.2;
+            	//posX -= 0.1;
+                momentumX -= 0.2;
                 break;
             case KeyEvent.VK_D:
-            	posX += 0.1;
-                //momentumX -= 0.2;
+            	//posX += 0.1;
+                momentumX += 0.2;
                 break;
                 
             case KeyEvent.VK_Q:
