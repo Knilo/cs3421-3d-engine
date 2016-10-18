@@ -36,8 +36,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private double posZ = -0;
     private double momentumX = 0;
     private double momentumZ = 0;
+    private double momentum = 0;
     private final double maxMomentum = 0.35;
     private double scale = 1;
+    private boolean firstPersonEnabled = true;
     private static int framerate = 60;
     private String grassTexture = "grass.bmp";
     private String grassTextureExt = "bmp";
@@ -130,12 +132,19 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         updateMomentum();
         updateHeight();
         
-        
         double sinShift = sinDeg(angleY);
         double cosShift = cosDeg(angleY);
         setCamera(gl, sinShift, cosShift);
         
-        gl.glTranslated(-posX + 0.5 * sinShift, -posY, posZ - 0.5 * cosShift);
+        float[] pos = {0, 1, 1, 0};
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, pos, 0);
+        
+        
+        if (firstPersonEnabled) {
+            gl.glTranslated(-posX, -posY, posZ);
+        } else {
+            gl.glTranslated(-posX + 0.5 * sinShift, -posY, posZ - 0.5 * cosShift);
+        }
         //gl.glRotated(-angleY + 180, 0, 1, 0);
         //gl.glRotated(-angleX, 1, 0, 0);
         gl.glRotated(90, 0, 1, 0);
@@ -214,7 +223,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glPushMatrix();
             gl.glTranslated(0 + 0.5 * xOffset, 0, 0 - 0.5 * zOffset);
             gl.glScaled(0.2, 0.2, 0.2);
-            glut.glutSolidTeapot(0.1f);
+            if (!firstPersonEnabled) {
+                glut.glutSolidTeapot(0.1f);
+            }
         gl.glPopMatrix();
         
 	    
@@ -436,8 +447,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glEnable(GL2.GL_LIGHTING);
         //Turn on default light
         gl.glEnable(GL2.GL_LIGHT0);
-        float[] pos = {0, 1, 1, 1};
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, pos, 0);
+        
         
         float globAmb[] = {0.9f, 0.9f, 0.9f, 1.0f};
         gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globAmb,0); // Global ambient light.
@@ -499,32 +509,36 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
                 break;	
             case KeyEvent.VK_LEFT:
                    
-                angleY = (angleY + 10) % 360;
+                angleY = (angleY - 10) % 360;
                 break;
             case KeyEvent.VK_RIGHT:
                  
-                angleY = (angleY - 10) % 360;
+                angleY = (angleY + 10) % 360;
                 break;
              
             case KeyEvent.VK_W:
                 
-                //posZ += 0.1;
-                momentumZ += 0.2;
+                posZ += Math.cos(Math.toRadians(angleY)) * 0.1;
+                posX += Math.sin(Math.toRadians(angleY)) * 0.1;
+                //momentumZ += 0.2;
                 break;
                 
             case KeyEvent.VK_S:
                 
-                //posZ -= 0.1;
-                momentumZ -= 0.2;
+                posZ -= Math.cos(Math.toRadians(angleY)) * 0.1;
+                posX -= Math.sin(Math.toRadians(angleY)) * 0.1;
+                //momentumZ -= 0.2;
                 break;
                 
             case KeyEvent.VK_A:
             	//posX -= 0.1;
-                momentumX -= 0.2;
+            	angleY = (angleY - 10) % 360;
+                //momentumX -= 0.2;
                 break;
             case KeyEvent.VK_D:
             	//posX += 0.1;
-                momentumX += 0.2;
+            	angleY = (angleY + 10) % 360;
+                //momentumX += 0.2;
                 break;
                 
             case KeyEvent.VK_Q:
@@ -544,6 +558,12 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
                 
                 posY += 0.1;
                 break;
+            case KeyEvent.VK_C:
+                if (firstPersonEnabled) {
+                    firstPersonEnabled = false;
+                } else {
+                    firstPersonEnabled = true;
+                }
             default:
                 break;
 		 }
