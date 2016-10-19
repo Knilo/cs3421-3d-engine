@@ -50,6 +50,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private String trunkTexture = "trunk.jpg";
     private String trunkTextureExt = "jpg";
     private final int textureTrunk = 2;
+    MyObject testObject;
     public Game(Terrain terrain) {
     	super("Assignment 2");
         myTerrain = terrain;
@@ -223,9 +224,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
             gl.glScaled(0.2, 0.2, 0.2);
             if (!firstPersonEnabled) {
                 gl.glTranslated(0, 0.65, 0);
-                //MyObject testObject = new MyObject(gl);
-                //testObject.draw(gl);
-                glut.glutSolidTeapot(0.1f);
+                
+                testObject = new MyObject(gl);
+                testObject.draw(gl);
+                //glut.glutSolidTeapot(0.1f);
                 
             }
         gl.glPopMatrix();
@@ -486,6 +488,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         myTextures[0] = new LevelTexture(gl, grassTexture, grassTextureExt, true);
         myTextures[1] = new LevelTexture(gl, leafTexture, leafTextureExt, true);
         myTextures[2] = new LevelTexture(gl, trunkTexture, trunkTextureExt, true);
+        testObject = new MyObject(gl);
 	}
 
 	@Override

@@ -7,3 +7,5 @@
 /TextureData.class
 /LevelTexture.class
 /MyObject.class
+/Shader.class
+/Shader$CompilationException.class
