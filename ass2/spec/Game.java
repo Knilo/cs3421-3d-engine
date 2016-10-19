@@ -159,20 +159,18 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         //gl.glTexParameterf(GL.GL_TEXTURE_2D,
         //        GL.GL_TEXTURE_MAX_ANISOTROPY_EXT,
         //        fLargest[0]);
-        gl.glPushMatrix();
-            //trying to change the angle of the terrain so that we can see it from a bird's eye view
-            //however, camera will still move into the terrain.
-            //gl.glTranslated (0, (posZ * Math.sin(Math.toRadians(20))), 0);
-            //gl.glRotated(20, 1, 0, 0);         
-            displayTerrain(gl);
-        gl.glPopMatrix();
-        gl.glPushMatrix();
-            displayTrees(gl);
-        gl.glPopMatrix();
+
+        //trying to change the angle of the terrain so that we can see it from a bird's eye view
+        //however, camera will still move into the terrain.
+        //gl.glTranslated (0, (posZ * Math.sin(Math.toRadians(20))), 0);
+        //gl.glRotated(20, 1, 0, 0);         
+        displayTerrain(gl);
+        displayTrees(gl);
+    	displayRoads(gl);
         
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);   
 	}
-	
+
 	private void updateMomentum() {
 	    if (momentumZ > maxMomentum) {
             momentumZ = maxMomentum;
@@ -204,7 +202,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	    
 	}
 	
-	private void updateHeight() { //doesn't appear to work
+	private void updateHeight() { 
 		System.out.println("############################################ x,z: " + posX +","+posZ );
 		
 	    try {
@@ -225,14 +223,31 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
             gl.glScaled(0.2, 0.2, 0.2);
             if (!firstPersonEnabled) {
                 gl.glTranslated(0, 0.65, 0);
-                MyObject testObject = new MyObject(gl);
-                testObject.draw(gl);
-                //glut.glutSolidTeapot(0.1f);
+                //MyObject testObject = new MyObject(gl);
+                //testObject.draw(gl);
+                glut.glutSolidTeapot(0.1f);
                 
             }
         gl.glPopMatrix();
         
 	    
+	}
+	
+	private void displayRoads(GL2 gl) {
+		
+		for (Road currRoad : this.myTerrain.roads()) {
+			gl.glPushMatrix();
+				double width = currRoad.width();
+				int size = currRoad.size();
+				gl.glBegin(GL2.GL_LINE_STRIP);
+					for (double t = 0; t < currRoad.size(); t+=0.05) {
+						double point[] = currRoad.point(t);
+						gl.glVertex3d(point[0], this.myTerrain.altitude(point[0], point[1])+0.05, point[1]);
+					}
+				gl.glEnd();
+			gl.glPopMatrix();
+		}
+		
 	}
 
 	private void displayTrees(GL2 gl) {
@@ -278,6 +293,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	}
 
 	private void displayTerrain(GL2 gl) {
+		gl.glPushMatrix();
 		Dimension d = this.myTerrain.size();
 		
 		double p0[] = new double[3];
@@ -399,6 +415,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		}
 		
 		//System.exit(0);
+		gl.glPopMatrix();
 	}
 	
 	double getMagnitude(double [] n){
