@@ -24,7 +24,7 @@ import com.jogamp.opengl.util.gl2.GLUT;
  * @author malcolmr
  */
 public class Game extends JFrame implements GLEventListener, KeyListener {
-
+    
     private Terrain myTerrain;
     private LevelTexture[] myTextures;
     private GLUT glut;
@@ -39,7 +39,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private double momentum = 0;
     private final double maxMomentum = 0.35;
     private double scale = 1;
-    private boolean firstPersonEnabled = true;
+    private boolean firstPersonEnabled = false;
     private static int framerate = 60;
     private String grassTexture = "grass.bmp";
     private String grassTextureExt = "bmp";
@@ -143,7 +143,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         if (firstPersonEnabled) {
             gl.glTranslated(-posX, -posY, posZ);
         } else {
-            gl.glTranslated(-posX + 0.5 * sinShift, -posY, posZ - 0.5 * cosShift);
+            gl.glTranslated(-posX + 0.5 * sinShift, -posY, posZ - 0.5 * cosShift); //shift axis to twist on
         }
         //gl.glRotated(-angleY + 180, 0, 1, 0);
         //gl.glRotated(-angleX, 1, 0, 0);
@@ -219,12 +219,16 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	private void setCamera(GL2 gl, double xOffset, double zOffset) {
 	    
         
-		glu.gluLookAt(0, 0.1, 0, 0 + xOffset, 0.1, 0 - zOffset, 0, 1, 0);
+		glu.gluLookAt(0, 0.1, 0.0, 0 + xOffset, 0.1, 0 - zOffset, 0, 1, 0);
         gl.glPushMatrix();
-            gl.glTranslated(0 + 0.5 * xOffset, 0, 0 - 0.5 * zOffset);
+            gl.glTranslated(0 + 0.5 * xOffset, -0.1, 0 - 0.5 * zOffset);
             gl.glScaled(0.2, 0.2, 0.2);
             if (!firstPersonEnabled) {
-                glut.glutSolidTeapot(0.1f);
+                gl.glTranslated(0, 0.65, 0);
+                MyObject testObject = new MyObject(gl);
+                testObject.draw(gl);
+                //glut.glutSolidTeapot(0.1f);
+                
             }
         gl.glPopMatrix();
         
