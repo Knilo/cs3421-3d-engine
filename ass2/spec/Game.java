@@ -164,10 +164,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         //trying to change the angle of the terrain so that we can see it from a bird's eye view
         //however, camera will still move into the terrain.
         //gl.glTranslated (0, (posZ * Math.sin(Math.toRadians(20))), 0);
-        //gl.glRotated(20, 1, 0, 0);         
+        //gl.glRotated(20, 1, 0, 0);  
+        
         displayTerrain(gl);
         displayTrees(gl);
-    	displayRoads(gl);
+        displayRoads(gl);
         
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);   
 	}
@@ -225,9 +226,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
             if (!firstPersonEnabled) {
                 gl.glTranslated(0, 0.65, 0);
                 
-                testObject = new MyObject(gl);
-                testObject.draw(gl);
-                //glut.glutSolidTeapot(0.1f);
+                //testObject = new MyObject(gl);
+                //testObject.draw(gl);
+                glut.glutSolidTeapot(0.1f);
                 
             }
         gl.glPopMatrix();
@@ -238,16 +239,23 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	private void displayRoads(GL2 gl) {
 		
 		for (Road currRoad : this.myTerrain.roads()) {
-			gl.glPushMatrix();
 				double width = currRoad.width();
 				int size = currRoad.size();
+				
 				gl.glBegin(GL2.GL_LINE_STRIP);
-					for (double t = 0; t < currRoad.size(); t+=0.05) {
-						double point[] = currRoad.point(t);
-						gl.glVertex3d(point[0], this.myTerrain.altitude(point[0], point[1])+0.05, point[1]);
+				gl.glNormal3d(0, 1, 0);
+					for (double t = 0; t < currRoad.size()-0.05; t+=0.05) {
+						gl.glPushMatrix();
+							double p0[] = currRoad.point(t);
+							double p1[] = currRoad.point(t+0.05);
+							gl.glTranslated(p0[0], this.myTerrain.altitude(p0[0], p0[1])+0.05 , p0[1]);							
+							//double angle = Math.toDegrees(Math.atan(Math.abs((p1[1]-p0[1])/(p1[0]-p0[0]))));
+							
+							//gl.glVertex3d(p0[0], this.myTerrain.altitude(p0[0], p0[1])+0.05 , p0[1]);
+							gl.glVertex3d(0, 1.1, 0);
+						gl.glPopMatrix();
 					}
 				gl.glEnd();
-			gl.glPopMatrix();
 		}
 		
 	}
@@ -290,7 +298,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
             //glut.glutSolidSphere(radius, 40, 40);
     	    glu.gluQuadricTexture(sphere, true);
             glu.gluSphere(sphere, 4, 20, 20);
-            gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[textureGrass].getTextureId());
+            
         gl.glPopMatrix();
 	}
 
@@ -302,6 +310,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		double p1[] = new double[3];
 		double p2[] = new double[3];
 		
+		gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[textureGrass].getTextureId());
 		//specifiy how texture values combine with current surface color values.
 		gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE );
 		gl.glTexParameteri(GL2.GL_TEXTURE, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
@@ -488,7 +497,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         myTextures[0] = new LevelTexture(gl, grassTexture, grassTextureExt, true);
         myTextures[1] = new LevelTexture(gl, leafTexture, leafTextureExt, true);
         myTextures[2] = new LevelTexture(gl, trunkTexture, trunkTextureExt, true);
-        testObject = new MyObject(gl);
+        //testObject = new MyObject(gl);
 	}
 
 	@Override
@@ -621,4 +630,72 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         return Math.cos(Math.toRadians(degree));
     }
 	
+	/**
+     * Multiply a vector by a matrix
+     * 
+     * @param m A 3x3 matrix
+     * @param v A 3x1 vector
+     * @return
+     */
+    public static double[] multiply(double[][] m, double[] v) {
+
+        double[] u = new double[3];
+
+        for (int i = 0; i < 3; i++) {
+            u[i] = 0;
+            for (int j = 0; j < 3; j++) {
+                u[i] += m[i][j] * v[j];
+            }
+        }
+
+        return u;
+    }
+	
+	
 }
+
+/* within push/pop
+double p0[] = currRoad.point(t);
+							double p1[] = currRoad.point(t+0.05);
+							
+							double k[] = new double[3];
+							//frenet frame						
+								
+							k[0] = p1[0]-p0[0];
+							k[1] = p1[1]-p0[1];
+							k[2] = this.myTerrain.altitude(p1[0], p1[1])- this.myTerrain.altitude(p0[0], p0[1]);							
+							k = normalise(k);
+							
+							double i[] = {-k[2],k[1],0};
+							double j[] = cross(k,i);
+							
+							double m[][] = {{i[0],j[0],k[0]},
+											{i[1],j[1],k[1]},		
+											{i[2],j[2],k[2]},
+											{0   ,0    ,1}};
+							
+							double a0[] = {-width,0,0};						
+							double a1[] = multiply(m,a0);
+							
+							double b0[] = {width,0,0};						
+							double b1[] = multiply(m,b0);
+							
+							double c0[] = {width,0,0.05};						
+							double c1[] = multiply(m,c0);
+							
+							double d0[] = {-width,0,0.05};						
+							double d1[] = multiply(m,d0);
+							
+							double a1[] = {-1,0,0};						
+							
+							double b1[] = {1,0,0};						
+							
+							double c1[] = {1,0,0.05};						
+
+							double d1[] = {-1,0,0.05};					
+							
+							gl.glVertex3d(a1[0], this.myTerrain.altitude(a1[0], a1[1]), a1[2]);
+							gl.glVertex3d(b1[0], this.myTerrain.altitude(b1[0], b1[1]), b1[2]);
+							gl.glVertex3d(c1[0], this.myTerrain.altitude(c1[0], c1[1]), c1[2]);
+							gl.glVertex3d(d1[0], this.myTerrain.altitude(d1[0], d1[1]), d1[2]);	
+*/
