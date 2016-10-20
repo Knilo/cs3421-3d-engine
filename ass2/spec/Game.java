@@ -276,9 +276,18 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 			gl.glRotated(-90, 1, 0, 0);
 			gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[textureTrunk].getTextureId());
 			///glut.glutSolidCylinder(radius, height, 40, 40);
-			GLUquadric cylinder = glu.gluNewQuadric();
-			glu.gluQuadricTexture(cylinder, true);
-			glu.gluCylinder(cylinder, 2, 1, 4, 20, 20);
+			//GLUquadric cylinder = glu.gluNewQuadric();
+			//glu.gluQuadricTexture(cylinder, true);
+			//glu.gluCylinder(cylinder, 2, 1, 4, 20, 20);
+			
+			 gl.glBegin(GL2.GL_QUADS);
+		     // face 1
+			 gl.glVertex3f(0,0,0);
+			 gl.glVertex3f(0,0,1);
+			 gl.glVertex3f(1,0,1);
+		     gl.glVertex3f(1,0,0);
+
+		     gl.glEnd();
 			
         gl.glPopMatrix();
 	}
