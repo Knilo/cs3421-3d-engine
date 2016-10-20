@@ -41,15 +41,15 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private double scale = 1;
     private boolean firstPersonEnabled = false;
     private static int framerate = 60;
-    private String grassTexture = "grass.bmp";
-    private String grassTextureExt = "bmp";
-    private final int textureGrass = 0;
+    private String grassTexture = "grass_top.png";
+    private String grassTextureExt = "png";
+    private final int grassTextureId = 0;
     private String leafTexture = "leaves.jpg";
     private String leafTextureExt = "jpg";
-    private final int textureLeaf = 1;
-    private String trunkTexture = "trunk.jpg";
-    private String trunkTextureExt = "jpg";
-    private final int textureTrunk = 2;
+    private final int leafTextureId = 1;
+    private String trunkTexture = "trunk.png";
+    private String trunkTextureExt = "png";
+    private final int trunkTextureId = 2;
     MyObject testObject;
     public Game(Terrain terrain) {
     	super("Assignment 2");
@@ -146,61 +146,22 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         } else {
             gl.glTranslated(-posX + 0.5 * sinShift, -posY, posZ - 0.5 * cosShift); //shift axis to twist on
         }
-        //gl.glRotated(-angleY + 180, 0, 1, 0);
-        //gl.glRotated(-angleX, 1, 0, 0);
+
         gl.glRotated(90, 0, 1, 0);
         gl.glScaled(scale,scale,scale);
-        //glu.gluLookAt(0, 0.1, -2, posX + Math.sin(Math.toRadians(angleY)), posY, posZ + Math.sin(Math.toRadians(angleY)), 0, 1, 0);
-
-        //gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_LINE);
-
-        //gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR); //enable trilinear filtering (mipmapping)
         float fLargest[] = new float[1];
         gl.glGetFloatv(GL.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, fLargest,0);
-        //gl.glTexParameterf(GL.GL_TEXTURE_2D,
-        //        GL.GL_TEXTURE_MAX_ANISOTROPY_EXT,
-        //        fLargest[0]);
 
-        //trying to change the angle of the terrain so that we can see it from a bird's eye view
-        //however, camera will still move into the terrain.
-        //gl.glTranslated (0, (posZ * Math.sin(Math.toRadians(20))), 0);
-        //gl.glRotated(20, 1, 0, 0);  
-        
         displayTerrain(gl);
         displayTrees(gl);
-        displayRoads(gl);
+    	displayRoads(gl);
+    	displayEnemies(gl);
         
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);   
 	}
 
 	private void updateMomentum() {
-	    if (momentumZ > maxMomentum) {
-            momentumZ = maxMomentum;
-        } else if (momentumZ < -maxMomentum) {
-            momentumZ = -maxMomentum;
-        }
-        posZ += momentumZ * momentumZ * momentumZ;
-        if (momentumZ < 0.02 && momentumZ > -0.02) {
-            momentumZ = 0;
-        } else if (momentumZ < 0) {
-            momentumZ += 0.01;
-        } else if (momentumZ > 0) {
-            momentumZ -= 0.01;
-        }
-        
-        if (momentumX > maxMomentum) {
-            momentumX = maxMomentum;
-        } else if (momentumX < -maxMomentum) {
-            momentumX = -maxMomentum;
-        }
-        posX += momentumX * momentumX * momentumX;
-        if (momentumX < 0.02 && momentumX > -0.02) {
-            momentumX = 0;
-        } else if (momentumX < 0) {
-            momentumX += 0.01;
-        } else if (momentumX > 0) {
-            momentumX -= 0.01;
-        }
+	    //insert momentum here
 	    
 	}
 	
@@ -217,23 +178,19 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	}
 	
 	private void setCamera(GL2 gl, double xOffset, double zOffset) {
-	    
-        
 		glu.gluLookAt(0, 0.1, 0.0, 0 + xOffset, 0.1, 0 - zOffset, 0, 1, 0);
         gl.glPushMatrix();
             gl.glTranslated(0 + 0.5 * xOffset, -0.1, 0 - 0.5 * zOffset);
             gl.glScaled(0.2, 0.2, 0.2);
             if (!firstPersonEnabled) {
                 gl.glTranslated(0, 0.65, 0);
-                
-                //testObject = new MyObject(gl);
-                //testObject.draw(gl);
-                glut.glutSolidTeapot(0.1f);
-                
+
+                gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[trunkTextureId].getTextureId());
+                testObject = new MyObject(gl);
+                testObject.draw(gl);
+                //glut.glutSolidTeapot(0.1f);
             }
         gl.glPopMatrix();
-        
-	    
 	}
 	
 	private void displayRoads(GL2 gl) {
@@ -259,6 +216,17 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		}
 		
 	}
+	
+	private void displayEnemies(GL2 gl) {
+	    for (Enemy currEnemy : this.myTerrain.enemies()) {
+	        double currEnemyPos[] = currEnemy.getPosition();
+	        gl.glPushMatrix();
+	            gl.glTranslated(currEnemyPos[0], currEnemyPos[1], currEnemyPos[2]);
+	            gl.glScaled(0.5, 0.5, 0.5);
+	            testObject.draw(gl);
+	        gl.glPopMatrix();
+	    }
+	}
 
 	private void displayTrees(GL2 gl) {
 		double trunkHeight = 5;
@@ -281,24 +249,102 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 
 	private void drawTrunk(GL2 gl, double radius, double height) {
 		gl.glPushMatrix();	
-			gl.glRotated(-90, 1, 0, 0);
-			gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[textureTrunk].getTextureId());
-			///glut.glutSolidCylinder(radius, height, 40, 40);
-			GLUquadric cylinder = glu.gluNewQuadric();
-			glu.gluQuadricTexture(cylinder, true);
-			glu.gluCylinder(cylinder, 2, 1, 4, 20, 20);
+	        gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[trunkTextureId].getTextureId());
+	        gl.glTranslated(-0.5, 0, 0.5);
+	        gl.glBegin(GL2.GL_QUADS);
+	        // front   
+	        
+	        gl.glNormal3d(0,0,1);
+	        
+	        gl.glTexCoord2d(0.0, 0.0);
+	        gl.glVertex3d(0, 0, 0); 
+	        gl.glTexCoord2d(1.0, 0.0);
+	        gl.glVertex3d(1, 0, 0); 
+	        gl.glTexCoord2d(1.0, 1.0);
+	        gl.glVertex3d(1, height, 0);
+	        gl.glTexCoord2d(0.0, 1.0);
+	        gl.glVertex3d(0, height, 0); 
+	        // back 
+	        
+	        gl.glColor3f(1, 1, 0); 
+	        gl.glNormal3d(0,0,-1);
+	        
+	        gl.glTexCoord2d(0.0, 0.0);
+	        gl.glVertex3d(0, 0, -1);
+	        gl.glTexCoord2d(1.0, 0.0);
+	        gl.glVertex3d(0, height, -1); 
+	        gl.glTexCoord2d(1.0, 1.0);
+	        gl.glVertex3d(1, height, -1);    
+	        gl.glTexCoord2d(0.0, 1.0);
+	        gl.glVertex3d(1, 0, -1); 
+	        
+	        
+	        // top
+	        gl.glColor3f(1, 0, 0);
+	        gl.glNormal3d(0,1,0);
+	        
+	        gl.glTexCoord2d(0.0, 0.0);
+	        gl.glVertex3d(0, height, 0); 
+	        gl.glTexCoord2d(1.0, 0.0);
+	        gl.glVertex3d(1, height, 0); 
+	        gl.glTexCoord2d(1.0, 1.0);
+	        gl.glVertex3d(1, height, -1);  
+	        gl.glTexCoord2d(0.0, 1.0);
+	        gl.glVertex3d(0, height, -1);  
+	        
+	        // bottom  
+	        gl.glColor3f(0, 1, 0); 
+	        gl.glNormal3d(0,-1,0);
+	        
+	        gl.glTexCoord2d(0.0, 0.0);
+	        gl.glVertex3d(0, 0, 0);
+	        gl.glTexCoord2d(1.0, 0.0);
+	        gl.glVertex3d(0, 0, -1); 
+	        gl.glTexCoord2d(1.0, 1.0);
+	        gl.glVertex3d(1, 0, -1);    
+	        gl.glTexCoord2d(0.0, 1.0);
+	        gl.glVertex3d(1, 0, 0); 
+	        
+	        //left
+	        gl.glColor3f(0, 1, 1); 
+	        gl.glNormal3d(-1,0,0);
+	        
+	        gl.glTexCoord2d(0.0, 0.0);
+	        gl.glVertex3d(0, height, -1);
+	        gl.glTexCoord2d(1.0, 0.0);
+	        gl.glVertex3d(0, 0, -1);
+	        gl.glTexCoord2d(1.0, 1.0);
+	        gl.glVertex3d(0, 0, 0);
+	        gl.glTexCoord2d(0.0, 1.0);
+	        gl.glVertex3d(0, height, 0);
+	        
+	        //right
+	        gl.glColor3f(0, 0, 1); 
+	        gl.glNormal3d(1,0,0);
+	        
+	        gl.glTexCoord2d(0.0, 0.0);
+	        gl.glVertex3d(1, 0, -1);
+	        gl.glTexCoord2d(1.0, 0.0);
+	        gl.glVertex3d(1, height, -1);
+	        gl.glTexCoord2d(1.0, 1.0);
+	        gl.glVertex3d(1, height, 0);
+	        gl.glTexCoord2d(0.0, 1.0);
+	        gl.glVertex3d(1, 0, 0);
+	        
+	        gl.glEnd();
 			
         gl.glPopMatrix();
 	}
+	
 
 	private void drawLeaves(GL2 gl, double radius) {
 	    gl.glPushMatrix();
     	    GLUquadric sphere = glu.gluNewQuadric();
-    	    gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[textureLeaf].getTextureId());
+    	    gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[leafTextureId].getTextureId());
             //glut.glutSolidSphere(radius, 40, 40);
     	    glu.gluQuadricTexture(sphere, true);
             glu.gluSphere(sphere, 4, 20, 20);
-            
+            gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[grassTextureId].getTextureId());
         gl.glPopMatrix();
 	}
 
@@ -310,12 +356,13 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		double p1[] = new double[3];
 		double p2[] = new double[3];
 		
-		gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[textureGrass].getTextureId());
+		gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[grassTextureId].getTextureId());
 		//specifiy how texture values combine with current surface color values.
 		gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE );
 		gl.glTexParameteri(GL2.GL_TEXTURE, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT);
 		gl.glTexParameteri(GL2.GL_TEXTURE, GL2.GL_TEXTURE_WRAP_T, GL2.GL_REPEAT);
-		
+		//use textures here
+        gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[grassTextureId].getTextureId());
 		for (int x = 0; x < d.getWidth()-1; x++) { //
 			for (int z = 0; z < d.getHeight()-1; z++) {
 			    gl.glPushMatrix();
@@ -340,9 +387,6 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 				printVector(n0,"\n");
 				
 				gl.glNormal3d(n0[0], n0[1], n0[2]);
-				
-				//use textures here
-				gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[textureGrass].getTextureId());
 				
 				gl.glTexCoord2d(0.0, 0.0);
 				gl.glVertex3d(p0[0], p0[1], p0[2]);
