@@ -34,6 +34,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private double posX = 0;
     private double posY = 0;
     private double posZ = -0;
+    private float[] sunlightDir = {0, -10000, 0, 0};
+    private float[] sunlight = {0.5f, 0.5f, 0.5f, 0};
+    private double sunlightDelta = 45;
     private int cameraAngle = 0;
     private double momentumX = 0;
     private double momentumZ = 0;
@@ -118,7 +121,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     	
     	//Forgetting to clear the depth buffer can cause problems 
     	//such as empty black screens.
-    	gl.glClearColor(1, 1, 1, 1);
+    	//gl.glClearColor(1, 1, 1, 1);
+    	gl.glClearColor(sunlight[0]*0.8f + 0.2f, sunlight[1]*0.8f + 0.2f, sunlight[2] + 0.4f, 1);
     	gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
     	
     	gl.glMatrixMode(GL2.GL_MODELVIEW);
@@ -153,10 +157,19 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         float fLargest[] = new float[1];
         gl.glGetFloatv(GL.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, fLargest,0);
 
+        //display things
         displayTerrain(gl);
         displayTrees(gl);
     	displayRoads(gl);
     	displayEnemies(gl);
+    	
+    	// set lighting
+    	updateLight();
+    	sunlightDir[2] -= 0.5;
+    	
+    	gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, sunlightDir, 0);
+    	gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, sunlight, 0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, sunlight, 0);
         
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);   
 	}
@@ -166,6 +179,19 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	    
 	}
 	
+	private void updateLight() {
+	    //TO DO: CLAMP SUNLIGHT TO 0
+        sunlightDelta += 2;
+        for (int i = 0; i < sunlight.length; i++) {
+            sunlight[i] = (float) Math.sin(Math.toRadians(sunlightDelta));
+            if (sunlight[i] < 0) {
+                sunlight[i] = 0;
+            }
+        }
+	    sunlightDelta %= 360;
+
+	}
+	
 	private void updateHeight() { 
 		System.out.println("############################################ x,z: " + posX +","+posZ );
 		
@@ -173,7 +199,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	        posY = myTerrain.altitude(posX, posZ);
 	        System.out.println("############################################ height: " + posY);
 	    } catch (ArrayIndexOutOfBoundsException e) {
-	       posY = 0;
+	        posY = 0;
 	    }
 	    
 	}
@@ -526,11 +552,14 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         //Turn on default light
         gl.glEnable(GL2.GL_LIGHT0);
         //Turn on ambient light
-        gl.glEnable(GL2.GL_LIGHT1);
+        //gl.glEnable(GL2.GL_LIGHT1);
         
         
         float globAmb[] = {2.0f, 2.0f, 2.0f, 1.0f};
+
         //gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, globAmb, 0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, sunlight, 0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, sunlight, 0);
         gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globAmb,0); // Global ambient light.
         
         // normalise normals (!)
