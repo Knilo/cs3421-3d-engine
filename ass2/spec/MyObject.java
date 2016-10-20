@@ -26,7 +26,7 @@ public class MyObject {
         };
     
     //render cube as a set of triangles, credit to: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-4-a-colored-cube/
-    private float positions[] =
+    private float tpositions[] =
         {
             -1.0f,-1.0f,-1.0f, // triangle 1 : begin
             -1.0f,-1.0f, 1.0f,
@@ -65,20 +65,71 @@ public class MyObject {
             -1.0f, 1.0f, 1.0f,
             1.0f,-1.0f, 1.0f
         };
+    private float positions[] =
+        {
+            0, 0, 0,
+            1, 0, 0,
+            1, 1, 0,
+            0, 1, 0,
+            
+            0, 0, -1,
+            0, 1, -1,
+            1, 1, -1,
+            1, 0, -1,
+            
+            0, 0, 0,
+            0, 0, -1,
+            1, 0, -1,
+            1, 0, 0,
+            
+            0, 1, -1,
+            0, 0, -1,
+            0, 0, 0,
+            0, 1, 0,
+            
+            1, 0, -1,
+            1, 1, -1,
+            1, 1, 0,
+            1, 0, 0
+        };
 
     //There should be a matching entry in this array for each entry in
     //the positions array
-    private float scolors[] = 
+    
+    private float colors[] = 
         {
             1,0,0, 
             0,1,0,
             1,1,1,
             0,0,0,
+            
             0,0,1, 
-            1,1,0
+            1,1,0,
+            1,0,0, 
+            0,1,0,
+            
+            1,1,1,
+            0,0,0,
+            0,0,1, 
+            1,1,0,
+            
+            1,0,0, 
+            0,1,0,
+            1,1,1,
+            0,0,0,
+            
+            0,0,1, 
+            1,1,0,
+            1,0,0, 
+            0,1,0,
+            
+            1,1,1,
+            0,0,0,
+            0,0,1, 
+            1,1,0,
         }; 
     
-    private float colors[] =
+    private float tcolors[] =
         {
             0.583f,  0.771f,  0.014f,
             0.609f,  0.115f,  0.436f,
@@ -183,7 +234,8 @@ public class MyObject {
     }
     public void draw(GL2 gl) {
         gl.glPushMatrix();
-            gl.glScaled(0.1, 0.1, 0.1);
+            gl.glScaled(0.5, 0.5, 0.5);
+            gl.glTranslated(-0.5, 0, 0.5);
             gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
             
             //Use the shader
@@ -209,9 +261,10 @@ public class MyObject {
             gl.glColorPointer(3, GL.GL_FLOAT, 0, 
                               positions.length*FloatByteSize); //colors are found after the position
                                                              //co-ordinates in the current array buffer
-             
+            
             //Draw triangles, using 6 vertices, starting at vertex index 0 
-            gl.glDrawArrays(GL2.GL_TRIANGLES,0, positions.length / 3);  
+            gl.glDrawArrays(GL2.GL_QUADS,0, positions.length / 3);
+            
             
             //Comment above out of we want to use indexes
             

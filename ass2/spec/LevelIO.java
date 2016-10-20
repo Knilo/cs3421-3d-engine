@@ -50,6 +50,16 @@ public class LevelIO {
             double h = jsonAltitude.getDouble(i);
             terrain.setGridAltitude(x, z, h);
         }
+        
+        if (jsonTerrain.has("enemy")) {
+            JSONArray jsonEnemies = jsonTerrain.getJSONArray("enemy");
+            for (int i = 0; i < jsonEnemies.length(); i++) {
+                JSONObject jsonEnemy = jsonEnemies.getJSONObject(i);
+                double x = jsonEnemy.getDouble("x");
+                double z = jsonEnemy.getDouble("z");
+                terrain.addEnemy(x, z);
+            }
+        }
 
         if (jsonTerrain.has("trees")) {
             JSONArray jsonTrees = jsonTerrain.getJSONArray("trees");

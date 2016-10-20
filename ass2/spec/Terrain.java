@@ -18,6 +18,8 @@ public class Terrain {
     private double[][] myAltitude;
     private List<Tree> myTrees;
     private List<Road> myRoads;
+    private List<Enemy> myEnemies;
+    
     private float[] mySunlight;
 
     /**
@@ -31,6 +33,7 @@ public class Terrain {
         myAltitude = new double[width][depth];
         myTrees = new ArrayList<Tree>();
         myRoads = new ArrayList<Road>();
+        myEnemies = new ArrayList<Enemy>();
         mySunlight = new float[3];
     }
     
@@ -48,6 +51,10 @@ public class Terrain {
 
     public List<Road> roads() {
         return myRoads;
+    }
+    
+    public List<Enemy> enemies() {
+        return myEnemies;
     }
 
     public float[] getSunlight() {
@@ -174,6 +181,12 @@ public class Terrain {
 	        altitude = -(n[0]*(x - p0[0]) + n[2]*(z - p0[2]))/n[1] + p0[1];
     	}
         return altitude;
+    }
+    
+    public void addEnemy (double x, double z) {
+        double y = altitude(x, z);
+        Enemy enemy = new Enemy(x, y, z);
+        myEnemies.add(enemy);
     }
 
     /**
