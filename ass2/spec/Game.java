@@ -34,6 +34,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private double posX = 0;
     private double posY = 0;
     private double posZ = -0;
+    private int cameraAngle = 0;
     private double momentumX = 0;
     private double momentumZ = 0;
     private double momentum = 0;
@@ -178,7 +179,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	}
 	
 	private void setCamera(GL2 gl, double xOffset, double zOffset) {
-		glu.gluLookAt(0, 0.1, 0.0, 0 + xOffset, 0.1, 0 - zOffset, 0, 1, 0);
+	    double cameraAngleShift = (Math.tan(Math.toRadians(cameraAngle))); //DEBUG: Allow for viewing angle
+		glu.gluLookAt(0, 0.1, 0.0, 0 + xOffset, 0.1 + cameraAngleShift, 0 - zOffset, 0, 1, 0);
         gl.glPushMatrix();
             gl.glTranslated(0 + 0.5 * xOffset, -0.1, 0 - 0.5 * zOffset);
             gl.glScaled(0.2, 0.2, 0.2);
@@ -523,9 +525,12 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glEnable(GL2.GL_LIGHTING);
         //Turn on default light
         gl.glEnable(GL2.GL_LIGHT0);
+        //Turn on ambient light
+        gl.glEnable(GL2.GL_LIGHT1);
         
         
-        float globAmb[] = {0.9f, 0.9f, 0.9f, 1.0f};
+        float globAmb[] = {2.0f, 2.0f, 2.0f, 1.0f};
+        //gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, globAmb, 0);
         gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globAmb,0); // Global ambient light.
         
         // normalise normals (!)
@@ -577,11 +582,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		switch (e.getKeyCode()) {
 		  
             case KeyEvent.VK_UP:
-                   
+                cameraAngle += 10;
                 //angleX = (angleX + 10) % 360;
                 break;
             case KeyEvent.VK_DOWN:
-            	     
+            	cameraAngle -= 10;
                 //angleX = (angleX - 10) % 360;
                 break;	
             case KeyEvent.VK_LEFT:
