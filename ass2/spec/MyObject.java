@@ -236,7 +236,6 @@ public class MyObject {
         gl.glPushMatrix();
             gl.glScaled(0.5, 0.5, 0.5);
             gl.glTranslated(-0.5, 0, 0.5);
-            gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
             
             //Use the shader
             gl.glUseProgram(shaderprogram);

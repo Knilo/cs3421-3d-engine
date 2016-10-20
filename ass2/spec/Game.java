@@ -214,8 +214,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	        double currEnemyPos[] = currEnemy.getPosition();
 	        gl.glPushMatrix();
 	            gl.glTranslated(currEnemyPos[0], currEnemyPos[1], currEnemyPos[2]);
-	            gl.glScaled(0.1, 0.1, 0.1);
-	            glut.glutSolidSphere(1, 10, 10);
+	            gl.glScaled(0.5, 0.5, 0.5);
+	            testObject.draw(gl);
 	        gl.glPopMatrix();
 	    }
 	}
