@@ -161,7 +161,7 @@ public class Terrain {
 	        }
      
 	        double p2[] = {i,this.getGridAltitude(i, j) ,j};
-	        System.out.println("In triangle: (" +p0[0]+"," +p0[1]+"," +p0[2]+") ("+p1[0]+","+p1[1]+"," +p1[2]+") ("+p2[0]+","+p2[1]+"," +p2[2]+")");
+	        //System.out.println("In triangle: (" +p0[0]+"," +p0[1]+"," +p0[2]+") ("+p1[0]+","+p1[1]+"," +p1[2]+") ("+p2[0]+","+p2[1]+"," +p2[2]+")");
 	        
 	        // Find the equation of the plane that passes through the 3 points.
 	        // Equation of a plane: a(x-x0) + b(y-y0) + c(z-z0) = 0
@@ -169,11 +169,11 @@ public class Terrain {
 	        // and <a,b,c> is a vector perpendicular to the plane
 	        double n[] = getNormal(p0, p1, p2);
 	        
-	        System.out.println("normal: " + n[0] + "," + n[1] + ","+ n[2]);
-	        System.out.println("point: (" +p0[0]+"," +p0[1]+"," +p0[2]+")");
-	        System.out.println("n[0]*(x - p0[0]): "+ n[0]*(x - p0[0]));
-	        System.out.println("n[2]*(z - p0[2]): " + n[2]*(z - p0[2]));
-	        System.out.println("n[1]: " + n[1] + " p0[1]: " + p0[1]);
+	        //System.out.println("normal: " + n[0] + "," + n[1] + ","+ n[2]);
+	        //System.out.println("point: (" +p0[0]+"," +p0[1]+"," +p0[2]+")");
+	        //System.out.println("n[0]*(x - p0[0]): "+ n[0]*(x - p0[0]));
+	        //System.out.println("n[2]*(z - p0[2]): " + n[2]*(z - p0[2]));
+	        //System.out.println("n[1]: " + n[1] + " p0[1]: " + p0[1]);
 	        // From this equation of a plane we can figure out the height by substituting in the non-integer coordinates.
 	        // y = -(a(x - x0) + c(z - z0))/b + y0
 	        

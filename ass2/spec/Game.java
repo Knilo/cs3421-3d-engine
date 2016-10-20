@@ -166,11 +166,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	}
 	
 	private void updateHeight() { 
-		System.out.println("############################################ x,z: " + posX +","+posZ );
+		//System.out.println("############################################ x,z: " + posX +","+posZ );
 		
 	    try {
 	        posY = myTerrain.altitude(posX, posZ);
-	        System.out.println("############################################ height: " + posY);
+	       //System.out.println("############################################ height: " + posY);
 	    } catch (ArrayIndexOutOfBoundsException e) {
 	       posY = 0;
 	    }
@@ -197,22 +197,57 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		
 		for (Road currRoad : this.myTerrain.roads()) {
 				double width = currRoad.width();
-				int size = currRoad.size();
+				gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
+				gl.glColor3f(0, 0, 0);
 				
-				gl.glBegin(GL2.GL_LINE_STRIP);
-				gl.glNormal3d(0, 1, 0);
-					for (double t = 0; t < currRoad.size()-0.05; t+=0.05) {
+					for (double t = 0; t < currRoad.size()-0.01; t+=0.01) {
 						gl.glPushMatrix();
-							double p0[] = currRoad.point(t);
-							double p1[] = currRoad.point(t+0.05);
-							gl.glTranslated(p0[0], this.myTerrain.altitude(p0[0], p0[1])+0.05 , p0[1]);							
-							//double angle = Math.toDegrees(Math.atan(Math.abs((p1[1]-p0[1])/(p1[0]-p0[0]))));
 							
-							//gl.glVertex3d(p0[0], this.myTerrain.altitude(p0[0], p0[1])+0.05 , p0[1]);
-							gl.glVertex3d(0, 1.1, 0);
+							double p0[] = currRoad.point(t);
+							double p1[] = currRoad.point(t+0.01);
+							gl.glTranslated(p0[0], this.myTerrain.altitude(p0[0], p0[1])+0.01, p0[1]);
+							double a = Math.toDegrees(Math.atan(Math.abs((p1[1]-p0[1])/(p1[0]-p0[0]))));
+							gl.glRotated(a, 0, 1, 0);
+							gl.glBegin(GL2.GL_QUADS);
+								// up face
+								gl.glNormal3d(0, 1, 0);
+								gl.glVertex3d(-0.15, 0, -width/2);
+								gl.glVertex3d(-0.15, 0, width/2);
+								gl.glVertex3d(0, 0, width/2);
+								gl.glVertex3d(0, 0, -width/2);
+								
+								//down face
+								gl.glNormal3d(0, -1, 0);
+								gl.glVertex3d(-0.15, 0, -width/2);
+								gl.glVertex3d(0, 0, -width/2);
+								gl.glVertex3d(0, 0, width/2);
+								gl.glVertex3d(-0.15, 0, width/2);
+								
+								
+								
+							gl.glEnd();
+//							
+//							//System.out.println("point: "+p0[0] + " " + p0[1]);													
+//							//gl.glVertex3d(0, 0, 0);
+
+//							
+//							
+//							double m[][] = {{Math.cos(a),0,Math.sin(a)},
+//											{-Math.sin(a),1,Math.cos(a)},
+//											{0,           0, 1}};
+//							
+//							double p2[] = multiply(m,p0);
+//							double p3[] = multiply(m,p1);
+//							
+//							gl.glVertex3d(p2[0], this.myTerrain.altitude(p0[0], p0[1])+0.05 , p0[1]);
+//							gl.glVertex3d(p3[0], this.myTerrain.altitude(p0[0], p0[1])+0.05 , p0[1]);
+//							gl.glVertex3d(p0[0], this.myTerrain.altitude(p0[0], p0[1])+0.05 , p0[1]);
+//							gl.glVertex3d(p0[0], this.myTerrain.altitude(p0[0], p0[1])+0.05 , p0[1]);
+							
+							
 						gl.glPopMatrix();
 					}
-				gl.glEnd();
+					
 		}
 		
 	}
