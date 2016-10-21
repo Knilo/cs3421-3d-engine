@@ -2,11 +2,14 @@ package ass2.spec;
 
 import java.util.Random;
 
+
+//Rain particle adapted from particle sytem in week 9 lecture code
 public class RainParticle {
     boolean active; // always active in this program
     float life;     // how alive it is
     float r, g, b;  // color
     float x, y, z;  // position
+    float originalY = 0;
     float speedX, speedY, speedZ; // speed in the direction
 
     private final float[][] colors = {    // rainbow of 12 colors
@@ -25,7 +28,9 @@ public class RainParticle {
 
     public void burst() {
        // Set the initial position
-       x = y = z = 0.0f;
+       x = z = 0.0f;
+       originalY = rand.nextFloat() * 10;
+       y = originalY;
        
        // Generate a random speed and direction in polar coordinate, then resolve
        // them into x and y.
@@ -34,7 +39,7 @@ public class RainParticle {
        float angle = (float)Math.toRadians(rand.nextInt(360));
 
        speedX = speed * (float)Math.cos(angle);
-       speedY = speed * (float)Math.sin(angle) + 0.1f;
+       speedY = 0;//speed * (float)Math.sin(angle) + 0.1f;
        speedZ = (rand.nextFloat() - 0.5f) * maxSpeed;
 
        int colorIndex = (int)(((speed - 0.02f) + maxSpeed) / (maxSpeed * 2) * colors.length) % colors.length;

@@ -42,8 +42,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private final double maxMomentum = 0.35;
     private double scale = 1;
     private boolean firstPersonEnabled = false;
+    private boolean enabledRain = false;
     private boolean enabledBurst = false;
-    private final int maxRainParticles = 50;
+    private final int maxRainParticles = 1000;
     private RainParticle[] rainParticles = new RainParticle[maxRainParticles];
     private static int framerate = 60;
     private String grassTexture = "grass_top.png";
@@ -55,8 +56,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private String trunkTexture = "trunk.png";
     private String trunkTextureExt = "png";
     private final int trunkTextureId = 2;
-    private String rainTexture = "rain.bmp";
-    private String rainTextureExt = "bmp";
+    private String rainTexture = "rain.png";
+    private String rainTextureExt = "png";
     private final int rainTextureId = 3;
     MyObject testObject;
     public Game(Terrain terrain) {
@@ -186,7 +187,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	    posX += momentum * Math.sin(Math.toRadians(angleY));
 	    posZ += momentum * Math.cos(Math.toRadians(angleY));
 	    momentum = momentum * 0.90;
-	    if (Math.abs(momentum) < 0.01) {
+	    if (Math.abs(momentum) < 0.005) {
 	        momentum = 0;
 	    }
 	    
@@ -235,61 +236,72 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	}
 	
 	private void displayRain(GL2 gl) {
-	      // Render the rainParticles
-          // Enable Blending 
-	      gl.glEnable(GL2.GL_BLEND);      
-	      //Creates an additive blend, which looks spectacular on a black background
-	      gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE);
-	      
-	      gl.glPushMatrix();
-	      float y = 0;
-	      float z = -1;
-	      // Render the rainParticles
-	      for (int i = 0; i < maxRainParticles; i++) {
-	         if (rainParticles[i].active) {
-	            // Draw the particle using our RGB values
-	            
-	            gl.glColor4f(rainParticles[i].r, rainParticles[i].g, rainParticles[i].b, rainParticles[i].life);
-
-	            gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[rainTextureId].getTextureId()); 
-	        
-	            
-	            gl.glBegin(GL2.GL_QUADS);
-
-	            float px = rainParticles[i].x;
-	            float py = rainParticles[i].y + y;
-	            float pz = rainParticles[i].z + z;
-
-	            gl.glTexCoord2d(1, 1);
-	            gl.glVertex3f(px + 0.5f, py + 0.5f, pz); // Top Right
-	            gl.glTexCoord2d(0, 1);
-	            gl.glVertex3f(px - 0.5f, py + 0.5f, pz); // Top Left
-	            gl.glTexCoord2d(0, 0);
-	            gl.glVertex3f(px - 0.5f, py - 0.5f, pz); // Bottom Left
-	            gl.glTexCoord2d(1, 0);
-	            gl.glVertex3f(px + 0.5f, py - 0.5f, pz); // Bottom Right
-	            gl.glEnd();
-
-	            // Move the particle
-	            rainParticles[i].x += rainParticles[i].speedX;
-	            rainParticles[i].y += rainParticles[i].speedY;
-	            rainParticles[i].z += rainParticles[i].speedZ;
-	            
-	            // Apply the gravity force on y-axis
-	            rainParticles[i].speedY += -0.0008f;
-	            
-	            // Slowly kill it
-	            rainParticles[i].life -= 0.002;
-	            
-	            if (enabledBurst) {
-	               rainParticles[i].burst();
-	            }
-	         }
+	      //Rain system adapted from particle system example in week 9 lecture code
+	      if (enabledRain) {
+    	      // Render the rainParticles
+              // Enable Blending 
+    	      gl.glEnable(GL2.GL_BLEND);      
+    	      //Creates an additive blend, which looks spectacular on a black background
+    	      gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE);
+    	      
+    	      gl.glPushMatrix();
+    	      gl.glLoadIdentity();
+    	      gl.glTranslated(0, 4, 0);
+    	      float y = 0;
+    	      float z = -1;
+    	      // Render the rainParticles
+    	      for (int i = 0; i < maxRainParticles; i++) {
+    	         if (rainParticles[i].active) {
+    	            // Draw the particle using our RGB values
+    	            
+    	            gl.glColor4f(rainParticles[i].r, rainParticles[i].g, rainParticles[i].b, rainParticles[i].life);
+    
+    	            gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[rainTextureId].getTextureId()); 
+    	        
+    	            
+    	            gl.glBegin(GL2.GL_QUADS);
+    
+    	            float px = rainParticles[i].x;
+    	            float py = rainParticles[i].y + y;
+    	            float pz = rainParticles[i].z + z;
+    
+    	            gl.glTexCoord2d(1, 1);
+    	            gl.glVertex3f(px + 0.5f, py + 0.5f, pz); // Top Right
+    	            gl.glTexCoord2d(0, 1);
+    	            gl.glVertex3f(px - 0.5f, py + 0.5f, pz); // Top Left
+    	            gl.glTexCoord2d(0, 0);
+    	            gl.glVertex3f(px - 0.5f, py - 0.5f, pz); // Bottom Left
+    	            gl.glTexCoord2d(1, 0);
+    	            gl.glVertex3f(px + 0.5f, py - 0.5f, pz); // Bottom Right
+    	            gl.glEnd();
+    
+    	            // Move the particle
+    	            rainParticles[i].x += rainParticles[i].speedX;
+    	            rainParticles[i].y += rainParticles[i].speedY;
+    	            if (rainParticles[i].y < -10) {
+    	                rainParticles[i].y = rainParticles[i].originalY;
+    	                rainParticles[i].speedY = -0.1f;
+    	                rainParticles[i].speedX = 0;
+    	                rainParticles[i].speedZ = 0;
+    	            }
+    	            rainParticles[i].z += rainParticles[i].speedZ;
+    	            
+    	            // Apply the gravity force on y-axis
+    	            rainParticles[i].speedY += -0.0008f;
+    	            
+    	            // Slowly kill it
+    	            rainParticles[i].life -= 0.002;
+    	            
+    	            if (enabledBurst) {
+    	               rainParticles[i].burst();
+    	            }
+    	         }
+    	      }
+    	      if (enabledBurst) enabledBurst = false;
+    	      gl.glPopMatrix();
+    	      
+    	      gl.glDisable(GL2.GL_BLEND);
 	      }
-	      if (enabledBurst) enabledBurst = false;
-	      gl.glPopMatrix();
-	      
-	      gl.glDisable(GL2.GL_BLEND);
 	}
 	
 	private void displayRoads(GL2 gl) {
@@ -703,7 +715,12 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
                 }
                 break;
             case KeyEvent.VK_T:
-                enabledBurst = true;
+                if (enabledRain) {
+                    enabledRain = false;
+                } else {
+                    enabledRain = true;
+                    enabledBurst = true;
+                }
                 break;
             default:
                 break;
