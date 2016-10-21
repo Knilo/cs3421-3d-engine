@@ -649,29 +649,39 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
                 break;	
             case KeyEvent.VK_LEFT:
                    
-                angleY = (angleY - 10) % 360;
+                angleY = (angleY - 2) % 360;
                 break;
             case KeyEvent.VK_RIGHT:
                  
-                angleY = (angleY + 10) % 360;
+                angleY = (angleY + 2) % 360;
                 break;
              
             case KeyEvent.VK_W:
-                momentum += 0.05;
+                
+                if(momentum < 0.08) {
+                	momentum += 0.03;
+                } else {
+                	momentum += 0.01;
+                }
                 break;
                 
             case KeyEvent.VK_S:
-                momentum -= 0.05;
+                
+                if (momentum > 0) {
+            		momentum = 0;
+                } else {
+                	momentum -= 0.01;
+                }
                 break;
                 
             case KeyEvent.VK_A:
             	//posX -= 0.1;
-            	angleY = (angleY - 10) % 360;
+            	angleY = (angleY - 3) % 360;
                 //momentumX -= 0.2;
                 break;
             case KeyEvent.VK_D:
             	//posX += 0.1;
-            	angleY = (angleY + 10) % 360;
+            	angleY = (angleY + 3) % 360;
                 //momentumX += 0.2;
                 break;
                 
