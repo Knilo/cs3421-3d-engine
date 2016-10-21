@@ -57,8 +57,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private String grassTextureExt = "png";
     private final int grassTextureId = 0;
     
-    private String leafTexture = "leaves.jpg";
-    private String leafTextureExt = "jpg";
+    private String leafTexture = "leaves.png";
+    private String leafTextureExt = "png";
     private final int leafTextureId = 1;
     
     private String trunkTexture = "trunk.png";
@@ -69,7 +69,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private String rainTextureExt = "png";
     private final int rainTextureId = 3;
     
-    private String roadTexture = "rain.png";
+    private String roadTexture = "road.png";
     private String roadTextureExt = "png";
     private final int roadTextureId = 4;
     
@@ -80,6 +80,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private String orangePortalTexture = "orangeportal.png";
     private String orangePortalTextureExt = "png";
     private final int orangePortalTextureId = 6;
+    
     
     MyObject testObject;
     public Game(Terrain terrain) {
@@ -279,17 +280,17 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	private void checkPortals(GL2 gl) {
 	    double[] curPos = {posX, posY, posZ};
 	    for (PortalPair pp : this.myTerrain.portalPairs()) {
-	        if (inRange(curPos, pp.bluePortalPos, 0.5)) {
+	        if (inRange(curPos, pp.bluePortalPos, 0.1)) {
 	            curPos = pp.orangePortalPos;
-	            posX = curPos[0] + 0.6;
+	            posX = curPos[0] + 0.15;
 	            posY = curPos[1];
 	            posZ = curPos[2];
 	            break;
 	        }
 	        
-	        if (inRange(curPos, pp.orangePortalPos, 0.5)) {
+	        if (inRange(curPos, pp.orangePortalPos, 0.1)) {
                 curPos = pp.bluePortalPos;
-                posX = curPos[0] + 0.6;
+                posX = curPos[0] + 0.15;
                 posY = curPos[1];
                 posZ = curPos[2];
                 break;
@@ -413,11 +414,14 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 					gl.glBegin(GL2.GL_QUADS);
 
 					gl.glNormal3d(0, 1, 0);
-	
+					    gl.glTexCoord2d(0, 0);
 						gl.glVertex3d(0, 0, -width/2);
+						gl.glTexCoord2d(0, width/2);
 						gl.glVertex3d(0, 0, width/2);
 						
+						gl.glTexCoord2d(width/2, width/2);
 						gl.glVertex3d(-0.15, 0, width/2);
+						gl.glTexCoord2d(width/2, 0);
 						gl.glVertex3d(-0.15, 0, -width/2);
 						
 					gl.glEnd();
@@ -461,7 +465,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	private void displayTrees(GL2 gl) {
 		double trunkHeight = 5;
 		double trunkRadius = 1;
-		double leavesRadius = 3;
+		double leavesRadius = 2;
 		
 		for(Tree currTree : this.myTerrain.trees()) {
 			double currTreePos[] = currTree.getPosition();	
@@ -471,7 +475,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 				// draw trunk		
 				drawTrunk(gl, trunkHeight);			
 				// draw leaves
-				gl.glTranslated(0, trunkHeight + leavesRadius - 1, 0);
+				gl.glTranslated(0, trunkHeight, 0);
 				drawLeaves(gl, leavesRadius);
 			gl.glPopMatrix();
 		}
@@ -479,22 +483,52 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 
 	private void drawTrunk(GL2 gl, double height) {
 		gl.glPushMatrix();	
-	        gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[trunkTextureId].getTextureId());
-	        gl.glTranslated(-0.5, 0, 0.5);
-	        CuboidObject.drawCuboid(gl, height);
-			
+	        CuboidObject.drawCuboid(gl, height, 2, myTextures[trunkTextureId].getTextureId());
         gl.glPopMatrix();
 	}
 	
 
-	private void drawLeaves(GL2 gl, double radius) {
+	private void drawLeaves(GL2 gl, double width) {
 	    gl.glPushMatrix();
+	        
+	        for (int x = -2; x <= 2; x++) {
+	            for (int z = -2; z <= 2; z++) {
+    	            gl.glPushMatrix();
+    	                gl.glTranslated(x, 0, z);
+    	                CuboidObject.drawCuboid(gl, width, width, myTextures[leafTextureId].getTextureId());
+    	            gl.glPopMatrix();
+	            }
+	        }
+	        
+	        
+	        gl.glTranslated(0, width, 0);
+	        CuboidObject.drawCuboid(gl, width, width, myTextures[leafTextureId].getTextureId());
+	        gl.glPushMatrix();
+	            gl.glTranslated(width, 0, 0);
+	            CuboidObject.drawCuboid(gl, width, width, myTextures[leafTextureId].getTextureId());
+	        gl.glPopMatrix();
+	        gl.glPushMatrix();
+                gl.glTranslated(-width, 0, 0);
+                CuboidObject.drawCuboid(gl, width, width, myTextures[leafTextureId].getTextureId());
+            gl.glPopMatrix();
+            gl.glPushMatrix();
+                gl.glTranslated(0, 0, width);
+                CuboidObject.drawCuboid(gl, width, width, myTextures[leafTextureId].getTextureId());
+            gl.glPopMatrix();
+            gl.glPushMatrix();
+                gl.glTranslated(0, 0, -width);
+                CuboidObject.drawCuboid(gl, width, width, myTextures[leafTextureId].getTextureId());
+            gl.glPopMatrix();
+            gl.glTranslated(0, width, 0);
+            CuboidObject.drawCuboid(gl, width, width, myTextures[leafTextureId].getTextureId());
+	        /*
     	    GLUquadric sphere = glu.gluNewQuadric();
     	    gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[leafTextureId].getTextureId());
             //glut.glutSolidSphere(radius, 40, 40);
     	    glu.gluQuadricTexture(sphere, true);
             glu.gluSphere(sphere, 4, 20, 20);
             gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[grassTextureId].getTextureId());
+            */
         gl.glPopMatrix();
 	}
 
