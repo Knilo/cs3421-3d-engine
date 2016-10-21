@@ -56,8 +56,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private String trunkTexture = "trunk.png";
     private String trunkTextureExt = "png";
     private final int trunkTextureId = 2;
-    private String rainTexture = "rem.jpg";
-    private String rainTextureExt = "jpg";
+    private String rainTexture = "rain.png";
+    private String rainTextureExt = "png";
     private final int rainTextureId = 3;
     MyObject testObject;
     public Game(Terrain terrain) {
@@ -246,8 +246,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     	      
     	      gl.glPushMatrix();
     	      gl.glLoadIdentity();
-    	      gl.glTranslated(0, 6, 0);
-    	      gl.glScaled(6, 6, 6);
+    	      gl.glTranslated(Math.sin(Math.toRadians(angleY)), 6, Math.cos(Math.toRadians(angleY)));
     	      float y = 0;
     	      float z = -1;
     	      // Render the rainParticles
@@ -279,16 +278,24 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     	            // Move the particle
     	            rainParticles[i].x += rainParticles[i].speedX;
     	            rainParticles[i].y += rainParticles[i].speedY;
+    	            rainParticles[i].z += rainParticles[i].speedZ;
     	            if (rainParticles[i].y < -10) {
     	                rainParticles[i].y = rainParticles[i].originalY;
     	                rainParticles[i].speedY = -0.1f;
     	                rainParticles[i].speedX = 0;
     	                rainParticles[i].speedZ = 0;
     	            }
-    	            rainParticles[i].z += rainParticles[i].speedZ;
+    	            
+    	            if (rainParticles[i].z > 0.0001) {
+    	                rainParticles[i].z -= (float) Math.random() * 0.7;
+    	            }
+    	            if (rainParticles[i].z < -10) {
+    	                rainParticles[i].z += (float) Math.random() * 1.2;
+    	            }
+    	            
     	            
     	            // Apply the gravity force on y-axis
-    	            rainParticles[i].speedY += -0.0002f;
+    	            rainParticles[i].speedY += -0.0008f;
     	            
     	            
     	            if (enabledBurst) {
