@@ -19,6 +19,7 @@ public class Terrain {
     private List<Tree> myTrees;
     private List<Road> myRoads;
     private List<Enemy> myEnemies;
+    private List<PortalPair> myPortalPairs;
     
     private float[] mySunlight;
 
@@ -34,6 +35,7 @@ public class Terrain {
         myTrees = new ArrayList<Tree>();
         myRoads = new ArrayList<Road>();
         myEnemies = new ArrayList<Enemy>();
+        myPortalPairs = new ArrayList<PortalPair>();
         mySunlight = new float[3];
     }
     
@@ -44,7 +46,7 @@ public class Terrain {
     public Dimension size() {
         return mySize;
     }
-
+    
     public List<Tree> trees() {
         return myTrees;
     }
@@ -55,6 +57,10 @@ public class Terrain {
     
     public List<Enemy> enemies() {
         return myEnemies;
+    }
+    
+    public List<PortalPair> portalPairs() {
+        return myPortalPairs;
     }
 
     public float[] getSunlight() {
@@ -181,6 +187,19 @@ public class Terrain {
 	        altitude = -(n[0]*(x - p0[0]) + n[2]*(z - p0[2]))/n[1] + p0[1];
     	}
         return altitude;
+    }
+    
+    public void addPortalPair (double orangeX, double orangeZ, double blueX, double blueZ) {
+        double orangeY = altitude (orangeX, orangeZ);
+        double blueY   = altitude (blueX  , blueZ);
+        
+        double[] orangePortalPos = {orangeX, orangeY, orangeZ};
+        double[] bluePortalPos   = {blueX  , blueY  , blueZ};
+        
+        //to do: create portalpair object
+        PortalPair pp = new PortalPair(orangePortalPos, bluePortalPos);
+        myPortalPairs.add(pp);
+        
     }
     
     public void addEnemy (double x, double z) {

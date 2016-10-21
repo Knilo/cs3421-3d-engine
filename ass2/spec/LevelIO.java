@@ -51,6 +51,26 @@ public class LevelIO {
             terrain.setGridAltitude(x, z, h);
         }
         
+        if (jsonTerrain.has("portal")) {
+            JSONArray jsonPortals = jsonTerrain.getJSONArray("portal");
+            for (int i = 0; i < jsonPortals.length(); i++) {
+                JSONObject portalPair = jsonPortals.getJSONObject(i);
+                
+                //get orange portal coordinates
+                JSONObject orangePortal = portalPair.getJSONObject("orange");
+                double orangeX = orangePortal.getDouble("x");
+                double orangeZ = orangePortal.getDouble("z");
+                
+                //get blue portal coordinates
+                JSONObject bluePortal = portalPair.getJSONObject("blue");
+                double blueX = bluePortal.getDouble("x");
+                double blueZ = bluePortal.getDouble("z");
+                
+                terrain.addPortalPair(orangeX, orangeZ, blueX, blueZ);
+                
+            }
+        }
+        
         if (jsonTerrain.has("enemy")) {
             JSONArray jsonEnemies = jsonTerrain.getJSONArray("enemy");
             for (int i = 0; i < jsonEnemies.length(); i++) {

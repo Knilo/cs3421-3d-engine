@@ -182,6 +182,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
             displayTrees(gl);
         	displayRoads(gl);
         	displayEnemies(gl);
+        	displayPortals(gl);
         	displayRain(gl);
         	
         	// set lighting
@@ -517,6 +518,14 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		
 		//System.exit(0);
 		gl.glPopMatrix();
+	}
+	
+	private void displayPortals(GL2 gl) {
+	    gl.glPushMatrix();
+	    for (PortalPair pp : this.myTerrain.portalPairs()) {
+	        pp.draw(gl);
+	    }
+	    gl.glPopMatrix();
 	}
 	
 	double getMagnitude(double [] n){
