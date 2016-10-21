@@ -260,7 +260,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
                 gl.glTranslated(0, 0.65, 0);
 
                 gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[trunkTextureId].getTextureId());
-                testObject = new MyObject(gl);
+                
                 testObject.draw(gl);
                 //glut.glutSolidTeapot(0.1f);
             }
@@ -268,8 +268,23 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	}
 	
 	private void checkPortals(GL2 gl) {
+	    double[] curPos = {posX, posY, posZ};
 	    for (PortalPair pp : this.myTerrain.portalPairs()) {
+	        if (inRange(curPos, pp.bluePortalPos, 0.5)) {
+	            curPos = pp.orangePortalPos;
+	            posX = curPos[0] + 0.6;
+	            posY = curPos[1];
+	            posZ = curPos[2];
+	            break;
+	        }
 	        
+	        if (inRange(curPos, pp.orangePortalPos, 0.5)) {
+                curPos = pp.bluePortalPos;
+                posX = curPos[0] + 0.6;
+                posY = curPos[1];
+                posZ = curPos[2];
+                break;
+            }
 	    }
 	}
 	
@@ -644,8 +659,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         myTextures[5] = new LevelTexture(gl, bluePortalTexture, bluePortalTextureExt, true);
         myTextures[6] = new LevelTexture(gl, orangePortalTexture, orangePortalTextureExt, true);
         
-        //testObject = new MyObject(gl);
-        
+        testObject = new MyObject(gl);
         //init rain particles
         for (int i = 0; i < rainParticles.length; i++) {
             rainParticles[i] = new RainParticle();

@@ -77,6 +77,11 @@ public class MyObject {
             1, 1, -1,
             1, 0, -1,
             
+            0, 1, 0,
+            1, 1, 0,
+            1, 1, -1,
+            0, 1, -1,
+            
             0, 0, 0,
             0, 0, -1,
             1, 0, -1,
@@ -91,6 +96,35 @@ public class MyObject {
             1, 1, -1,
             1, 1, 0,
             1, 0, 0
+        };
+    
+    
+    private float normals[] =
+        {
+            1, 1, 1,
+            1, 1, 1,
+            1, 1, 1,
+            1, 1, 1,
+            
+            1, 1, 1,
+            1, 1, 1,
+            1, 1, 1,
+            1, 1, 1,
+            
+            1, 1, 1,
+            1, 1, 1,
+            1, 1, 1,
+            1, 1, 1,
+            
+            1, 1, 1,
+            1, 1, 1,
+            1, 1, 1,
+            1, 1, 1,
+            
+            1, 1, 1,
+            1, 1, 1,
+            1, 1, 1,
+            1, 1, 1
         };
 
     //There should be a matching entry in this array for each entry in
@@ -175,7 +209,7 @@ public class MyObject {
     
     private FloatBuffer posData = Buffers.newDirectFloatBuffer(positions);
     private FloatBuffer colorData = Buffers.newDirectFloatBuffer(colors);
-    
+    private FloatBuffer normalData = Buffers.newDirectFloatBuffer(normals);
     private ShortBuffer indexData = Buffers.newDirectShortBuffer(indexes);
     
     private int shaderprogram;
@@ -192,7 +226,7 @@ public class MyObject {
         //This is just setting aside enough empty space
         //for all our data
         gl.glBufferData(GL2.GL_ARRAY_BUFFER,    //Type of buffer  
-                   positions.length * FloatByteSize +  colors.length* FloatByteSize, //size needed
+                   (positions.length + colors.length + normals.length) * FloatByteSize, //size needed
                    null,    //We are not actually loading data here yet
                    GL2.GL_STATIC_DRAW); //We expect once we load this data we will not modify it
         
@@ -206,6 +240,12 @@ public class MyObject {
         gl.glBufferSubData(GL2.GL_ARRAY_BUFFER, positions.length*FloatByteSize,  //Load after the position data
                 colors.length*FloatByteSize,
                 colorData);
+        
+        //Actually load the normal data
+        gl.glBufferSubData(GL2.GL_ARRAY_BUFFER, (positions.length + colors.length) *FloatByteSize,  //Load after the position data
+                normals.length*FloatByteSize,
+                normalData);
+        
         
         /* Uncomment if we want to use indexes
         //Now for the element array
@@ -222,6 +262,7 @@ public class MyObject {
         //Enable client state
         gl.glEnableClientState( GL2.GL_VERTEX_ARRAY);
         gl.glEnableClientState( GL2.GL_COLOR_ARRAY);
+        gl.glEnableClientState( GL2.GL_NORMAL_ARRAY);
         
         try {
             shaderprogram = Shader.initShaders(gl, VERTEX_SHADER, FRAGMENT_SHADER);   
@@ -243,12 +284,15 @@ public class MyObject {
                
             int vertexColLoc = gl.glGetAttribLocation(shaderprogram,"vertexCol");
             int vertexPosLoc = gl.glGetAttribLocation(shaderprogram,"vertexPos");
+            //int vertexNorLoc = gl.glGetAttribLocation(shaderprogram,"vertexNor");
                    
             // Specify locations for the co-ordinates and color arrays.
             gl.glEnableVertexAttribArray(vertexPosLoc);
             gl.glEnableVertexAttribArray(vertexColLoc);
+            //gl.glEnableVertexAttribArray(vertexNorLoc);
             gl.glVertexAttribPointer(vertexPosLoc,3, GL.GL_FLOAT, false,0, 0); //last num is the offset
             gl.glVertexAttribPointer(vertexColLoc,3, GL.GL_FLOAT, false,0, positions.length*FloatByteSize);
+            //gl.glVertexAttribPointer(vertexNorLoc,3, GL.GL_FLOAT, false,0, (positions.length + colors.length) * FloatByteSize);
             
             //Comment below out if we want to use indexes
             
@@ -261,7 +305,9 @@ public class MyObject {
                               positions.length*FloatByteSize); //colors are found after the position
                                                              //co-ordinates in the current array buffer
             
-            //Draw triangles, using 6 vertices, starting at vertex index 0 
+            //gl.glNormalPointer(GL.GL_FLOAT, 0, (positions.length + colors.length) * FloatByteSize);
+            
+            //Draw triangles, using 4 vertices, starting at vertex index 0 
             gl.glDrawArrays(GL2.GL_QUADS,0, positions.length / 3);
             
             
