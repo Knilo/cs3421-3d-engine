@@ -50,15 +50,23 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private String grassTexture = "grass_top.png";
     private String grassTextureExt = "png";
     private final int grassTextureId = 0;
+    
     private String leafTexture = "leaves.jpg";
     private String leafTextureExt = "jpg";
     private final int leafTextureId = 1;
+    
     private String trunkTexture = "trunk.png";
     private String trunkTextureExt = "png";
     private final int trunkTextureId = 2;
+    
     private String rainTexture = "rain.png";
     private String rainTextureExt = "png";
     private final int rainTextureId = 3;
+    
+    private String roadTexture = "rain.png";
+    private String roadTextureExt = "png";
+    private final int roadTextureId = 4;
+    
     MyObject testObject;
     public Game(Terrain terrain) {
     	super("Assignment 2");
@@ -149,7 +157,13 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         
         float[] pos = {0, 1, 1, 0};
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, pos, 0);
+        //figure out whats perpendicular to the direction of the light
+        // rotate accordingly
         
+        //texture a VBO in a shader
+        //texture example shader/VBO shader week 8
+        //vertex shader outputs coordsinates
+        //frag shader, take in texture coord, use coord to look up value using texture function
         
         if (firstPersonEnabled) {
             gl.glTranslated(-posX, -posY, posZ);
@@ -314,8 +328,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		
 		for (Road currRoad : this.myTerrain.roads()) {
 			double width = currRoad.width();
-			gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
-			gl.glColor3f(0, 0, 0);
+			gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[roadTextureId].getTextureId());
+			
+			//gl.glColor3f(100, 0, 0);
 			
 			for (double t = 0; t < currRoad.size()-0.01; t+=0.01) {
 				gl.glPushMatrix();
@@ -328,6 +343,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 					gl.glBegin(GL2.GL_QUADS);
 						// up face
 						gl.glNormal3d(0, 1, 0);
+					
 						gl.glVertex3d(-0.15, 0, -width/2);
 						gl.glVertex3d(-0.15, 0, width/2);
 						gl.glVertex3d(0, 0, width/2);
@@ -438,20 +454,20 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		for (int x = 0; x < d.getWidth()-1; x++) { //
 			for (int z = 0; z < d.getHeight()-1; z++) {
 			    gl.glPushMatrix();
-				gl.glBegin(GL2.GL_TRIANGLE_STRIP);
+				gl.glBegin(GL2.GL_TRIANGLES);
 				p0[0] = x;
-				p0[1] = myTerrain.getGridAltitude(x, z+1);
-				p0[2] = z+1;
+				p0[1] = myTerrain.getGridAltitude(x, z);
+				p0[2] = z;
 				
-				p1[0] = x;	
-				p1[1] = myTerrain.getGridAltitude(x, z);
-				p1[2] = z;
+				p1[0] = x+1;	
+				p1[1] = myTerrain.getGridAltitude(x+1, z+1);
+				p1[2] = z+1;
 
 				p2[0] = x+1;	
 				p2[1] = myTerrain.getGridAltitude(x+1,z);
 				p2[2] = z;
 				
-				double [] n0 = getNormal(p2,p1,p0);
+				double [] n0 = getNormal(p0,p1,p2);
 				n0 = normalise(n0);
 				printPoint(p0,"");
 				printPoint(p1,"");
@@ -467,18 +483,18 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 				gl.glTexCoord2d(1.0, 0.0);
 				gl.glVertex3d(p2[0], p2[1], p2[2]);
 				
-				p0[0] = p1[0];
-				p0[1] = p1[1];
-				p0[2] = p1[2];
+				p0[0] = x;
+				p0[1] = myTerrain.getGridAltitude(x, z);
+				p0[2] = z;
 				
-				p1[0] = p2[0];
-				p1[1] = p2[1];
-				p1[2] = p2[2];	
+				p1[0] = x;	
+				p1[1] = myTerrain.getGridAltitude(x, z+1);
+				p1[2] = z+1;	
 				
 				p2[0] = x+1;	
 				p2[1] = myTerrain.getGridAltitude(x+1, z+1);
 				p2[2] = z+1;
-				double [] n1 = getNormal(p2,p1,p0);
+				double [] n1 = getNormal(p0,p1,p2);
 				n1 = normalise(n1);
 				printPoint(p0,"");
 				printPoint(p1,"");
@@ -487,54 +503,12 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 				
 				gl.glNormal3d(n1[0], n1[1], n1[2]);
 				gl.glTexCoord2d(0.0, 0.0);
-				gl.glVertex3d(p2[0], p2[1], p2[2]);	
-				
-				p0[0] = p1[0];
-				p0[1] = p1[1];
-				p0[2] = p1[2];
-				
-				p1[0] = p2[0];
-				p1[1] = p2[1];
-				p1[2] = p2[2];
-				
-				p2[0] = x;
-				p2[1] = this.myTerrain.getGridAltitude(x, z+1);
-				p2[2] = z+1;
-				
-				double [] n2 = getNormal(p2,p1,p0);
-				n2 = normalise(n2);
-				printPoint(p0,"");
-				printPoint(p1,"");
-				printPoint(p2,": ");
-				printVector(n2,"\n");
-				
-				gl.glNormal3d(n2[0], n2[1], n2[2]);
-				gl.glTexCoord2d(0.0, 1.0);
-				gl.glVertex3d(p2[0], p2[1], p2[2]);
-				
-				p0[0] = p1[0];
-				p0[1] = p1[1];
-				p0[2] = p1[2];
-				
-				p1[0] = p2[0];
-				p1[1] = p2[1];
-				p1[2] = p2[2];
-				
-				p2[0] = x;
-				p2[1] = this.myTerrain.getGridAltitude(x,z);
-				p2[2] = z;
-				
-				double [] n3 = getNormal(p2,p1,p0);
-				n3 = normalise(n3);
-				printPoint(p0,"");
-				printPoint(p1,"");
-				printPoint(p2,": ");
-				printVector(n3,"\n");
-				
-				gl.glNormal3d(n3[0], n3[1], n3[2]);
+				gl.glVertex3d(p0[0], p0[1], p0[2]);
 				gl.glTexCoord2d(1.0, 0.0);
+				gl.glVertex3d(p1[0], p1[1], p1[2]);
+				gl.glTexCoord2d(0.5, 1.0);
 				gl.glVertex3d(p2[0], p2[1], p2[2]);
-				
+
 				gl.glEnd();
 				gl.glPopMatrix();
 				//System.out.println();
@@ -615,11 +589,13 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         
         //enable textures
         gl.glEnable(GL2.GL_TEXTURE_2D);
-        myTextures = new LevelTexture[4];
+        myTextures = new LevelTexture[5];
         myTextures[0] = new LevelTexture(gl, grassTexture, grassTextureExt, true);
         myTextures[1] = new LevelTexture(gl, leafTexture, leafTextureExt, true);
         myTextures[2] = new LevelTexture(gl, trunkTexture, trunkTextureExt, true);
         myTextures[3] = new LevelTexture(gl, rainTexture, rainTextureExt, false);
+        myTextures[4] = new LevelTexture(gl, roadTexture, roadTextureExt, true);
+        
         //testObject = new MyObject(gl);
         
         //init rain particles
@@ -653,6 +629,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         myTextures[0] = new LevelTexture(gl, grassTexture, grassTextureExt, true);
         myTextures[1] = new LevelTexture(gl, leafTexture, leafTextureExt, true);
         myTextures[2] = new LevelTexture(gl, trunkTexture, trunkTextureExt, true);
+        myTextures[4] = new LevelTexture(gl, roadTexture, roadTextureExt, true);
+        
+        
 	}
 
 	@Override
@@ -785,48 +764,100 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	
 }
 
-/* within push/pop
-double p0[] = currRoad.point(t);
-							double p1[] = currRoad.point(t+0.05);
-							
-							double k[] = new double[3];
-							//frenet frame						
-								
-							k[0] = p1[0]-p0[0];
-							k[1] = p1[1]-p0[1];
-							k[2] = this.myTerrain.altitude(p1[0], p1[1])- this.myTerrain.altitude(p0[0], p0[1]);							
-							k = normalise(k);
-							
-							double i[] = {-k[2],k[1],0};
-							double j[] = cross(k,i);
-							
-							double m[][] = {{i[0],j[0],k[0]},
-											{i[1],j[1],k[1]},		
-											{i[2],j[2],k[2]},
-											{0   ,0    ,1}};
-							
-							double a0[] = {-width,0,0};						
-							double a1[] = multiply(m,a0);
-							
-							double b0[] = {width,0,0};						
-							double b1[] = multiply(m,b0);
-							
-							double c0[] = {width,0,0.05};						
-							double c1[] = multiply(m,c0);
-							
-							double d0[] = {-width,0,0.05};						
-							double d1[] = multiply(m,d0);
-							
-							double a1[] = {-1,0,0};						
-							
-							double b1[] = {1,0,0};						
-							
-							double c1[] = {1,0,0.05};						
+/* display terrain
+p0[0] = x;
+				p0[1] = myTerrain.getGridAltitude(x, z+1);
+				p0[2] = z+1;
+				
+				p1[0] = x;	
+				p1[1] = myTerrain.getGridAltitude(x, z);
+				p1[2] = z;
 
-							double d1[] = {-1,0,0.05};					
-							
-							gl.glVertex3d(a1[0], this.myTerrain.altitude(a1[0], a1[1]), a1[2]);
-							gl.glVertex3d(b1[0], this.myTerrain.altitude(b1[0], b1[1]), b1[2]);
-							gl.glVertex3d(c1[0], this.myTerrain.altitude(c1[0], c1[1]), c1[2]);
-							gl.glVertex3d(d1[0], this.myTerrain.altitude(d1[0], d1[1]), d1[2]);	
+				p2[0] = x+1;	
+				p2[1] = myTerrain.getGridAltitude(x+1,z);
+				p2[2] = z;
+				
+				double [] n0 = getNormal(p2,p1,p0);
+				n0 = normalise(n0);
+				printPoint(p0,"");
+				printPoint(p1,"");
+				printPoint(p2,": ");
+				printVector(n0,"\n");
+				
+				gl.glNormal3d(n0[0], n0[1], n0[2]);
+				
+				gl.glTexCoord2d(0.0, 0.0);
+				gl.glVertex3d(p0[0], p0[1], p0[2]);
+				gl.glTexCoord2d(0.0, 1.0);
+				gl.glVertex3d(p1[0], p1[1], p1[2]);
+				gl.glTexCoord2d(1.0, 0.0);
+				gl.glVertex3d(p2[0], p2[1], p2[2]);
+				
+				p0[0] = p1[0];
+				p0[1] = p1[1];
+				p0[2] = p1[2];
+				
+				p1[0] = p2[0];
+				p1[1] = p2[1];
+				p1[2] = p2[2];	
+				
+				p2[0] = x+1;	
+				p2[1] = myTerrain.getGridAltitude(x+1, z+1);
+				p2[2] = z+1;
+				double [] n1 = getNormal(p2,p1,p0);
+				n1 = normalise(n1);
+				printPoint(p0,"");
+				printPoint(p1,"");
+				printPoint(p2,": ");
+				printVector(n1,"\n");
+				
+				gl.glNormal3d(n1[0], n1[1], n1[2]);
+				gl.glTexCoord2d(0.0, 0.0);
+				gl.glVertex3d(p2[0], p2[1], p2[2]);	
+				
+				p0[0] = p1[0];
+				p0[1] = p1[1];
+				p0[2] = p1[2];
+				
+				p1[0] = p2[0];
+				p1[1] = p2[1];
+				p1[2] = p2[2];
+				
+				p2[0] = x;
+				p2[1] = this.myTerrain.getGridAltitude(x, z+1);
+				p2[2] = z+1;
+				
+				double [] n2 = getNormal(p2,p1,p0);
+				n2 = normalise(n2);
+				printPoint(p0,"");
+				printPoint(p1,"");
+				printPoint(p2,": ");
+				printVector(n2,"\n");
+				
+				gl.glNormal3d(n2[0], n2[1], n2[2]);
+				gl.glTexCoord2d(0.0, 1.0);
+				gl.glVertex3d(p2[0], p2[1], p2[2]);
+				
+				p0[0] = p1[0];
+				p0[1] = p1[1];
+				p0[2] = p1[2];
+				
+				p1[0] = p2[0];
+				p1[1] = p2[1];
+				p1[2] = p2[2];
+				
+				p2[0] = x;
+				p2[1] = this.myTerrain.getGridAltitude(x,z);
+				p2[2] = z;
+				
+				double [] n3 = getNormal(p2,p1,p0);
+				n3 = normalise(n3);
+				printPoint(p0,"");
+				printPoint(p1,"");
+				printPoint(p2,": ");
+				printVector(n3,"\n");
+				
+				gl.glNormal3d(n3[0], n3[1], n3[2]);
+				gl.glTexCoord2d(1.0, 0.0);
+				gl.glVertex3d(p2[0], p2[1], p2[2]);
 */
