@@ -10,3 +10,5 @@
 /Shader.class
 /Shader$CompilationException.class
 /Enemy.class
+/RainParticle.class
+/CuboidObject.class

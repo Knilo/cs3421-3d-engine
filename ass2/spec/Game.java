@@ -38,12 +38,13 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private float[] sunlight = {0.5f, 0.5f, 0.5f, 0};
     private double sunlightDelta = 45;
     private int cameraAngle = 0;
-    private double momentumX = 0;
-    private double momentumZ = 0;
     private double momentum = 0;
     private final double maxMomentum = 0.35;
     private double scale = 1;
     private boolean firstPersonEnabled = false;
+    private boolean enabledBurst = false;
+    private final int maxRainParticles = 50;
+    private RainParticle[] rainParticles = new RainParticle[maxRainParticles];
     private static int framerate = 60;
     private String grassTexture = "grass_top.png";
     private String grassTextureExt = "png";
@@ -54,6 +55,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private String trunkTexture = "trunk.png";
     private String trunkTextureExt = "png";
     private final int trunkTextureId = 2;
+    private String rainTexture = "rain.bmp";
+    private String rainTextureExt = "bmp";
+    private final int rainTextureId = 3;
     MyObject testObject;
     public Game(Terrain terrain) {
     	super("Assignment 2");
@@ -151,21 +155,24 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         } else {
             gl.glTranslated(-posX + 0.5 * sinShift, -posY, posZ - 0.5 * cosShift); //shift axis to twist on
         }
-
-        gl.glRotated(90, 0, 1, 0);
-        gl.glScaled(scale,scale,scale);
-        float fLargest[] = new float[1];
-        gl.glGetFloatv(GL.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, fLargest,0);
-
-        //display things
-        displayTerrain(gl);
-        displayTrees(gl);
-    	displayRoads(gl);
-    	displayEnemies(gl);
-    	
-    	// set lighting
-    	updateLight();
-    	sunlightDir[2] -= 0.5;
+        
+        gl.glPushMatrix();
+            gl.glRotated(90, 0, 1, 0);
+            gl.glScaled(scale,scale,scale);
+            float fLargest[] = new float[1];
+            gl.glGetFloatv(GL.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, fLargest,0);
+    
+            //display things
+            displayTerrain(gl);
+            displayTrees(gl);
+        	displayRoads(gl);
+        	displayEnemies(gl);
+        	displayRain(gl);
+        	
+        	// set lighting
+        	updateLight();
+        	sunlightDir[2] -= 0.5;
+    	gl.glPopMatrix();
     	
     	gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, sunlightDir, 0);
     	gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, sunlight, 0);
@@ -176,6 +183,12 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 
 	private void updateMomentum() {
 	    //insert momentum here
+	    posX += momentum * Math.sin(Math.toRadians(angleY));
+	    posZ += momentum * Math.cos(Math.toRadians(angleY));
+	    momentum = momentum * 0.90;
+	    if (Math.abs(momentum) < 0.01) {
+	        momentum = 0;
+	    }
 	    
 	}
 	
@@ -221,39 +234,97 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glPopMatrix();
 	}
 	
+	private void displayRain(GL2 gl) {
+	      // Render the rainParticles
+          // Enable Blending 
+	      gl.glEnable(GL2.GL_BLEND);      
+	      //Creates an additive blend, which looks spectacular on a black background
+	      gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE);
+	      
+	      gl.glPushMatrix();
+	      float y = 0;
+	      float z = -1;
+	      // Render the rainParticles
+	      for (int i = 0; i < maxRainParticles; i++) {
+	         if (rainParticles[i].active) {
+	            // Draw the particle using our RGB values
+	            
+	            gl.glColor4f(rainParticles[i].r, rainParticles[i].g, rainParticles[i].b, rainParticles[i].life);
+
+	            gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[rainTextureId].getTextureId()); 
+	        
+	            
+	            gl.glBegin(GL2.GL_QUADS);
+
+	            float px = rainParticles[i].x;
+	            float py = rainParticles[i].y + y;
+	            float pz = rainParticles[i].z + z;
+
+	            gl.glTexCoord2d(1, 1);
+	            gl.glVertex3f(px + 0.5f, py + 0.5f, pz); // Top Right
+	            gl.glTexCoord2d(0, 1);
+	            gl.glVertex3f(px - 0.5f, py + 0.5f, pz); // Top Left
+	            gl.glTexCoord2d(0, 0);
+	            gl.glVertex3f(px - 0.5f, py - 0.5f, pz); // Bottom Left
+	            gl.glTexCoord2d(1, 0);
+	            gl.glVertex3f(px + 0.5f, py - 0.5f, pz); // Bottom Right
+	            gl.glEnd();
+
+	            // Move the particle
+	            rainParticles[i].x += rainParticles[i].speedX;
+	            rainParticles[i].y += rainParticles[i].speedY;
+	            rainParticles[i].z += rainParticles[i].speedZ;
+	            
+	            // Apply the gravity force on y-axis
+	            rainParticles[i].speedY += -0.0008f;
+	            
+	            // Slowly kill it
+	            rainParticles[i].life -= 0.002;
+	            
+	            if (enabledBurst) {
+	               rainParticles[i].burst();
+	            }
+	         }
+	      }
+	      if (enabledBurst) enabledBurst = false;
+	      gl.glPopMatrix();
+	      
+	      gl.glDisable(GL2.GL_BLEND);
+	}
+	
 	private void displayRoads(GL2 gl) {
 		
 		for (Road currRoad : this.myTerrain.roads()) {
-				double width = currRoad.width();
-				gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
-				gl.glColor3f(0, 0, 0);
-				
-					for (double t = 0; t < currRoad.size()-0.01; t+=0.01) {
-						gl.glPushMatrix();
-							
-							double p0[] = currRoad.point(t);
-							double p1[] = currRoad.point(t+0.01);
-							gl.glTranslated(p0[0], this.myTerrain.altitude(p0[0], p0[1])+0.01, p0[1]);
-							double a = Math.toDegrees(Math.atan(Math.abs((p1[1]-p0[1])/(p1[0]-p0[0]))));
-							gl.glRotated(a, 0, 1, 0);
-							gl.glBegin(GL2.GL_QUADS);
-								// up face
-								gl.glNormal3d(0, 1, 0);
-								gl.glVertex3d(-0.15, 0, -width/2);
-								gl.glVertex3d(-0.15, 0, width/2);
-								gl.glVertex3d(0, 0, width/2);
-								gl.glVertex3d(0, 0, -width/2);
-								
-								//down face
-								gl.glNormal3d(0, -1, 0);
-								gl.glVertex3d(-0.15, 0, -width/2);
-								gl.glVertex3d(0, 0, -width/2);
-								gl.glVertex3d(0, 0, width/2);
-								gl.glVertex3d(-0.15, 0, width/2);
-								
-								
-								
-							gl.glEnd();
+			double width = currRoad.width();
+			gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
+			gl.glColor3f(0, 0, 0);
+			
+			for (double t = 0; t < currRoad.size()-0.01; t+=0.01) {
+				gl.glPushMatrix();
+					
+					double p0[] = currRoad.point(t);
+					double p1[] = currRoad.point(t+0.01);
+					gl.glTranslated(p0[0], this.myTerrain.altitude(p0[0], p0[1])+0.01, p0[1]);
+					double a = Math.toDegrees(Math.atan(Math.abs((p1[1]-p0[1])/(p1[0]-p0[0]))));
+					gl.glRotated(a, 0, 1, 0);
+					gl.glBegin(GL2.GL_QUADS);
+						// up face
+						gl.glNormal3d(0, 1, 0);
+						gl.glVertex3d(-0.15, 0, -width/2);
+						gl.glVertex3d(-0.15, 0, width/2);
+						gl.glVertex3d(0, 0, width/2);
+						gl.glVertex3d(0, 0, -width/2);
+						
+						//down face
+						gl.glNormal3d(0, -1, 0);
+						gl.glVertex3d(-0.15, 0, -width/2);
+						gl.glVertex3d(0, 0, -width/2);
+						gl.glVertex3d(0, 0, width/2);
+						gl.glVertex3d(-0.15, 0, width/2);
+						
+						
+						
+					gl.glEnd();
 //							
 //							//System.out.println("point: "+p0[0] + " " + p0[1]);													
 //							//gl.glVertex3d(0, 0, 0);
@@ -271,10 +342,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 //							gl.glVertex3d(p3[0], this.myTerrain.altitude(p0[0], p0[1])+0.05 , p0[1]);
 //							gl.glVertex3d(p0[0], this.myTerrain.altitude(p0[0], p0[1])+0.05 , p0[1]);
 //							gl.glVertex3d(p0[0], this.myTerrain.altitude(p0[0], p0[1])+0.05 , p0[1]);
-							
-							
-						gl.glPopMatrix();
-					}
+					
+					
+				gl.glPopMatrix();
+			}
 					
 		}
 		
@@ -302,7 +373,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 				gl.glTranslated(currTreePos[0], currTreePos[1], currTreePos[2]);
 				gl.glScaled(0.1, 0.1, 0.1);
 				// draw trunk		
-				drawTrunk(gl, trunkRadius, trunkHeight);			
+				drawTrunk(gl, trunkHeight);			
 				// draw leaves
 				gl.glTranslated(0, trunkHeight + leavesRadius - 1, 0);
 				drawLeaves(gl, leavesRadius);
@@ -310,91 +381,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		}
 	}
 
-	private void drawTrunk(GL2 gl, double radius, double height) {
+	private void drawTrunk(GL2 gl, double height) {
 		gl.glPushMatrix();	
 	        gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[trunkTextureId].getTextureId());
 	        gl.glTranslated(-0.5, 0, 0.5);
-	        gl.glBegin(GL2.GL_QUADS);
-	        // front   
-	        
-	        gl.glNormal3d(0,0,1);
-	        
-	        gl.glTexCoord2d(0.0, 0.0);
-	        gl.glVertex3d(0, 0, 0); 
-	        gl.glTexCoord2d(1.0, 0.0);
-	        gl.glVertex3d(1, 0, 0); 
-	        gl.glTexCoord2d(1.0, 1.0);
-	        gl.glVertex3d(1, height, 0);
-	        gl.glTexCoord2d(0.0, 1.0);
-	        gl.glVertex3d(0, height, 0); 
-	        // back 
-	        
-	        gl.glColor3f(1, 1, 0); 
-	        gl.glNormal3d(0,0,-1);
-	        
-	        gl.glTexCoord2d(0.0, 0.0);
-	        gl.glVertex3d(0, 0, -1);
-	        gl.glTexCoord2d(1.0, 0.0);
-	        gl.glVertex3d(0, height, -1); 
-	        gl.glTexCoord2d(1.0, 1.0);
-	        gl.glVertex3d(1, height, -1);    
-	        gl.glTexCoord2d(0.0, 1.0);
-	        gl.glVertex3d(1, 0, -1); 
-	        
-	        
-	        // top
-	        gl.glColor3f(1, 0, 0);
-	        gl.glNormal3d(0,1,0);
-	        
-	        gl.glTexCoord2d(0.0, 0.0);
-	        gl.glVertex3d(0, height, 0); 
-	        gl.glTexCoord2d(1.0, 0.0);
-	        gl.glVertex3d(1, height, 0); 
-	        gl.glTexCoord2d(1.0, 1.0);
-	        gl.glVertex3d(1, height, -1);  
-	        gl.glTexCoord2d(0.0, 1.0);
-	        gl.glVertex3d(0, height, -1);  
-	        
-	        // bottom  
-	        gl.glColor3f(0, 1, 0); 
-	        gl.glNormal3d(0,-1,0);
-	        
-	        gl.glTexCoord2d(0.0, 0.0);
-	        gl.glVertex3d(0, 0, 0);
-	        gl.glTexCoord2d(1.0, 0.0);
-	        gl.glVertex3d(0, 0, -1); 
-	        gl.glTexCoord2d(1.0, 1.0);
-	        gl.glVertex3d(1, 0, -1);    
-	        gl.glTexCoord2d(0.0, 1.0);
-	        gl.glVertex3d(1, 0, 0); 
-	        
-	        //left
-	        gl.glColor3f(0, 1, 1); 
-	        gl.glNormal3d(-1,0,0);
-	        
-	        gl.glTexCoord2d(0.0, 0.0);
-	        gl.glVertex3d(0, height, -1);
-	        gl.glTexCoord2d(1.0, 0.0);
-	        gl.glVertex3d(0, 0, -1);
-	        gl.glTexCoord2d(1.0, 1.0);
-	        gl.glVertex3d(0, 0, 0);
-	        gl.glTexCoord2d(0.0, 1.0);
-	        gl.glVertex3d(0, height, 0);
-	        
-	        //right
-	        gl.glColor3f(0, 0, 1); 
-	        gl.glNormal3d(1,0,0);
-	        
-	        gl.glTexCoord2d(0.0, 0.0);
-	        gl.glVertex3d(1, 0, -1);
-	        gl.glTexCoord2d(1.0, 0.0);
-	        gl.glVertex3d(1, height, -1);
-	        gl.glTexCoord2d(1.0, 1.0);
-	        gl.glVertex3d(1, height, 0);
-	        gl.glTexCoord2d(0.0, 1.0);
-	        gl.glVertex3d(1, 0, 0);
-	        
-	        gl.glEnd();
+	        CuboidObject.drawCuboid(gl, height);
 			
         gl.glPopMatrix();
 	}
@@ -606,11 +597,17 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         
         //enable textures
         gl.glEnable(GL2.GL_TEXTURE_2D);
-        myTextures = new LevelTexture[3];
+        myTextures = new LevelTexture[4];
         myTextures[0] = new LevelTexture(gl, grassTexture, grassTextureExt, true);
         myTextures[1] = new LevelTexture(gl, leafTexture, leafTextureExt, true);
         myTextures[2] = new LevelTexture(gl, trunkTexture, trunkTextureExt, true);
+        myTextures[3] = new LevelTexture(gl, rainTexture, rainTextureExt, false);
         //testObject = new MyObject(gl);
+        
+        //init rain particles
+        for (int i = 0; i < rainParticles.length; i++) {
+            rainParticles[i] = new RainParticle();
+        }
 	}
 
 	@Override
@@ -663,17 +660,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
                 break;
              
             case KeyEvent.VK_W:
-                
-                posZ += Math.cos(Math.toRadians(angleY)) * 0.1;
-                posX += Math.sin(Math.toRadians(angleY)) * 0.1;
-                //momentumZ += 0.2;
+                momentum += 0.05;
                 break;
                 
             case KeyEvent.VK_S:
-                
-                posZ -= Math.cos(Math.toRadians(angleY)) * 0.1;
-                posX -= Math.sin(Math.toRadians(angleY)) * 0.1;
-                //momentumZ -= 0.2;
+                momentum -= 0.05;
                 break;
                 
             case KeyEvent.VK_A:
@@ -710,6 +701,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
                 } else {
                     firstPersonEnabled = true;
                 }
+                break;
+            case KeyEvent.VK_T:
+                enabledBurst = true;
+                break;
             default:
                 break;
 		 }
