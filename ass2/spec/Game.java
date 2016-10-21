@@ -56,7 +56,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private String trunkTexture = "trunk.png";
     private String trunkTextureExt = "png";
     private final int trunkTextureId = 2;
-    private String rainTexture = "rain.jpg";
+    private String rainTexture = "rem.jpg";
     private String rainTextureExt = "jpg";
     private final int rainTextureId = 3;
     MyObject testObject;
@@ -246,7 +246,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     	      
     	      gl.glPushMatrix();
     	      gl.glLoadIdentity();
-    	      gl.glTranslated(0, 4, 0);
+    	      gl.glTranslated(0, 6, 0);
+    	      gl.glScaled(6, 6, 6);
     	      float y = 0;
     	      float z = -1;
     	      // Render the rainParticles
@@ -287,10 +288,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     	            rainParticles[i].z += rainParticles[i].speedZ;
     	            
     	            // Apply the gravity force on y-axis
-    	            rainParticles[i].speedY += -0.0008f;
+    	            rainParticles[i].speedY += -0.0002f;
     	            
-    	            // Slowly kill it
-    	            rainParticles[i].life -= 0.002;
     	            
     	            if (enabledBurst) {
     	               rainParticles[i].burst();
