@@ -143,7 +143,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     	//Forgetting to clear the depth buffer can cause problems 
     	//such as empty black screens.
     	//gl.glClearColor(1, 1, 1, 1);
-    	gl.glClearColor(sunlight[0]*0.8f + 0.2f, sunlight[1]*0.8f + 0.2f, sunlight[2] + 0.4f, 1);
+    	gl.glClearColor(sunlight[0]*0.8f + 0.2f, sunlight[1]*0.8f + 0.2f, sunlight[2] + 0.5f, 1);
     	gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
     	
     	gl.glMatrixMode(GL2.GL_MODELVIEW);
@@ -158,6 +158,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         
         updateMomentum();
         updateHeight();
+        //updateLight();
         
         
         checkPortals(gl);
@@ -165,8 +166,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         double cosShift = cosDeg(angleY);
         setCamera(gl, sinShift, cosShift);
         
-        float[] pos = {0, 1, 1, 0};
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, pos, 0);
+        setSunlight(gl);
         //figure out whats perpendicular to the direction of the light
         // rotate accordingly
         
@@ -196,7 +196,6 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         	displayRain(gl);
         	
         	// set lighting
-        	updateLight();
         	sunlightDir[2] -= 0.5;
     	gl.glPopMatrix();
     	
@@ -205,6 +204,14 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, sunlight, 0);
         
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);   
+	}
+
+	private void setSunlight(GL2 gl) {
+		gl.glPushMatrix();
+			gl.glTranslated(myTerrain.size().getWidth()/2, 0, myTerrain.size().getHeight()/2);
+			float[] pos = myTerrain.getSunlight();
+	        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, pos, 0);
+        gl.glPopMatrix();
 	}
 
 	private void updateMomentum() {
@@ -368,9 +375,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 			double v1[] = new double[3];
 			double v2[] = new double[3];
 			double v3[] = new double[3];
-			
-			
-			
+	
 			for (double t = 0.02; t < currRoad.size()-0.01; t+=0.01) {
 				gl.glPushMatrix();
 					
@@ -384,12 +389,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 					gl.glBegin(GL2.GL_QUADS);
 
 					gl.glNormal3d(0, 1, 0);
-						
-					
-						
-												
-						
-						
+	
 						gl.glVertex3d(0, 0, -width/2);
 						gl.glVertex3d(0, 0, width/2);
 						
@@ -616,12 +616,12 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         //Turn on default light
         gl.glEnable(GL2.GL_LIGHT0);
         //Turn on ambient light
-        //gl.glEnable(GL2.GL_LIGHT1);
+        gl.glEnable(GL2.GL_LIGHT1);
         
         
-        float globAmb[] = {2.0f, 2.0f, 2.0f, 1.0f};
+        float globAmb[] = {0.8f, 0.8f, 0.8f, 1.0f};
 
-        //gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, globAmb, 0);
+        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, globAmb, 0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, sunlight, 0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, sunlight, 0);
         gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globAmb,0); // Global ambient light.
