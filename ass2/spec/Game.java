@@ -201,7 +201,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	    //insert momentum here
 	    posX += momentum * Math.sin(Math.toRadians(angleY));
 	    posZ += momentum * Math.cos(Math.toRadians(angleY));
-	    momentum = momentum * 0.90;
+	    momentum = momentum * 0.80;
 	    if (Math.abs(momentum) < 0.005) {
 	        momentum = 0;
 	    }
@@ -332,32 +332,37 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 			gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[roadTextureId].getTextureId());
 			
 			//gl.glColor3f(100, 0, 0);
+			double v0[] = {};
+			double v1[] = new double[3];
+			double v2[] = new double[3];
+			double v3[] = new double[3];
 			
-			for (double t = 0; t < currRoad.size()-0.01; t+=0.01) {
+			
+			
+			for (double t = 0.02; t < currRoad.size()-0.01; t+=0.01) {
 				gl.glPushMatrix();
 					
 					double p0[] = currRoad.point(t);
-					double p1[] = currRoad.point(t+0.01);
-					gl.glTranslated(p0[0], this.myTerrain.altitude(p0[0], p0[1])+0.01, p0[1]);
+					double p1[] = currRoad.point(t+0.01);					
 					double a = Math.toDegrees(Math.atan(Math.abs((p1[1]-p0[1])/(p1[0]-p0[0]))));
-					gl.glRotated(a, 0, 1, 0);
-					gl.glBegin(GL2.GL_QUADS);
-						// up face
-						gl.glNormal3d(0, 1, 0);
 					
-						gl.glVertex3d(-0.15, 0, -width/2);
-						gl.glVertex3d(-0.15, 0, width/2);
-						gl.glVertex3d(0, 0, width/2);
+					gl.glTranslated(p0[0], this.myTerrain.altitude(p0[0], p0[1])+0.01, p0[1]);					
+					gl.glRotated(a, 0, 1, 0);
+					
+					gl.glBegin(GL2.GL_QUADS);
+
+					gl.glNormal3d(0, 1, 0);
+						
+					
+						
+												
+						
+						
 						gl.glVertex3d(0, 0, -width/2);
-						
-						//down face
-						gl.glNormal3d(0, -1, 0);
-						gl.glVertex3d(-0.15, 0, -width/2);
-						gl.glVertex3d(0, 0, -width/2);
 						gl.glVertex3d(0, 0, width/2);
+						
 						gl.glVertex3d(-0.15, 0, width/2);
-						
-						
+						gl.glVertex3d(-0.15, 0, -width/2);
 						
 					gl.glEnd();
 //							
@@ -593,8 +598,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         // this is necessary to make lighting work properly
         gl.glEnable(GL2.GL_NORMALIZE);
         
-        gl.glEnable(GL2.GL_CULL_FACE);
-        gl.glCullFace(GL2.GL_BACK);
+        //gl.glEnable(GL2.GL_CULL_FACE);
+        //gl.glCullFace(GL2.GL_BACK);
         
         //enable textures
         gl.glEnable(GL2.GL_TEXTURE_2D);
@@ -658,29 +663,39 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
                 break;	
             case KeyEvent.VK_LEFT:
                    
-                angleY = (angleY - 10) % 360;
+                angleY = (angleY - 2) % 360;
                 break;
             case KeyEvent.VK_RIGHT:
                  
-                angleY = (angleY + 10) % 360;
+                angleY = (angleY + 2) % 360;
                 break;
              
             case KeyEvent.VK_W:
-                momentum += 0.05;
+                
+                if(momentum < 0.08) {
+                	momentum += 0.03;
+                } else {
+                	momentum += 0.01;
+                }
                 break;
                 
             case KeyEvent.VK_S:
-                momentum -= 0.05;
+                
+                if (momentum > 0) {
+            		momentum = 0;
+                } else {
+                	momentum -= 0.01;
+                }
                 break;
                 
             case KeyEvent.VK_A:
             	//posX -= 0.1;
-            	angleY = (angleY - 10) % 360;
+            	angleY = (angleY - 4) % 360;
                 //momentumX -= 0.2;
                 break;
             case KeyEvent.VK_D:
             	//posX += 0.1;
-            	angleY = (angleY + 10) % 360;
+            	angleY = (angleY + 4) % 360;
                 //momentumX += 0.2;
                 break;
                 
