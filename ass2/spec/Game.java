@@ -67,6 +67,14 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private String roadTextureExt = "png";
     private final int roadTextureId = 4;
     
+    private String bluePortalTexture = "blueportal.png";
+    private String bluePortalTextureExt = "png";
+    private final int bluePortalTextureId = 5;
+    
+    private String orangePortalTexture = "orangeportal.png";
+    private String orangePortalTextureExt = "png";
+    private final int orangePortalTextureId = 6;
+    
     MyObject testObject;
     public Game(Terrain terrain) {
     	super("Assignment 2");
@@ -151,6 +159,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         updateMomentum();
         updateHeight();
         
+        
+        checkPortals(gl);
         double sinShift = sinDeg(angleY);
         double cosShift = cosDeg(angleY);
         setCamera(gl, sinShift, cosShift);
@@ -248,6 +258,28 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
                 //glut.glutSolidTeapot(0.1f);
             }
         gl.glPopMatrix();
+	}
+	
+	private void checkPortals(GL2 gl) {
+	    for (PortalPair pp : this.myTerrain.portalPairs()) {
+	        
+	    }
+	}
+	
+	private boolean inRange (double[] pos1, double[] pos2, double maxRange) {
+	    if (pos1.length != pos2.length) {
+	        throw new IndexOutOfBoundsException("pos1 array length not equal to pos2 array length");
+	    }
+	    double sumsquare = 0;
+	    for (int i = 0; i < pos1.length; i++) {
+	        double indexDiff = pos1[i] - pos2[i];
+	        sumsquare += (indexDiff * indexDiff);
+	    }
+	    
+	    double distance = Math.sqrt(sumsquare);
+	    
+	    return (distance < maxRange);
+	    
 	}
 	
 	private void displayRain(GL2 gl) {
@@ -528,7 +560,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	private void displayPortals(GL2 gl) {
 	    gl.glPushMatrix();
 	    for (PortalPair pp : this.myTerrain.portalPairs()) {
-	        pp.draw(gl);
+	        pp.draw(gl, myTextures[bluePortalTextureId], myTextures[orangePortalTextureId]);
 	    }
 	    gl.glPopMatrix();
 	}
@@ -603,12 +635,14 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         
         //enable textures
         gl.glEnable(GL2.GL_TEXTURE_2D);
-        myTextures = new LevelTexture[5];
+        myTextures = new LevelTexture[7];
         myTextures[0] = new LevelTexture(gl, grassTexture, grassTextureExt, true);
         myTextures[1] = new LevelTexture(gl, leafTexture, leafTextureExt, true);
         myTextures[2] = new LevelTexture(gl, trunkTexture, trunkTextureExt, true);
         myTextures[3] = new LevelTexture(gl, rainTexture, rainTextureExt, false);
         myTextures[4] = new LevelTexture(gl, roadTexture, roadTextureExt, true);
+        myTextures[5] = new LevelTexture(gl, bluePortalTexture, bluePortalTextureExt, true);
+        myTextures[6] = new LevelTexture(gl, orangePortalTexture, orangePortalTextureExt, true);
         
         //testObject = new MyObject(gl);
         
@@ -644,7 +678,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         myTextures[1] = new LevelTexture(gl, leafTexture, leafTextureExt, true);
         myTextures[2] = new LevelTexture(gl, trunkTexture, trunkTextureExt, true);
         myTextures[4] = new LevelTexture(gl, roadTexture, roadTextureExt, true);
-        
+        myTextures[5] = new LevelTexture(gl, bluePortalTexture, bluePortalTextureExt, true);
+        myTextures[6] = new LevelTexture(gl, orangePortalTexture, orangePortalTextureExt, true);
         
 	}
 
