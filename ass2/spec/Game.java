@@ -56,8 +56,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private String trunkTexture = "trunk.png";
     private String trunkTextureExt = "png";
     private final int trunkTextureId = 2;
-    private String rainTexture = "rain.png";
-    private String rainTextureExt = "png";
+    private String rainTexture = "rain.jpg";
+    private String rainTextureExt = "jpg";
     private final int rainTextureId = 3;
     MyObject testObject;
     public Game(Terrain terrain) {
