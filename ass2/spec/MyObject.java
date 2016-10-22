@@ -10,61 +10,13 @@ import com.jogamp.opengl.glu.GLU;
 
 public class MyObject {
     GLU glu;
-    private static final int FloatByteSize = Float.SIZE / 8;
+    private static final int FloatByteSize = 4;//Float.SIZE / 8;
     int bufferIds[] = new int[2];
+    private final String faceTex = "creeper.png";
+    private final String faceTexExt = "png";
     private static final String VERTEX_SHADER = "ass2/spec/AttributeVertex.glsl";
     private static final String FRAGMENT_SHADER = "ass2/spec/AttributeFragment.glsl";
-    
-    private float spositions[] = 
-        {
-            0,1,-1, 
-            -1,-1,-1,
-            1,-1,-1, 
-            0, 2,-4,
-            -2,-2,-4, 
-            2,-2,-4
-        };
-    
-    //render cube as a set of triangles, credit to: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-4-a-colored-cube/
-    private float tpositions[] =
-        {
-            -1.0f,-1.0f,-1.0f, // triangle 1 : begin
-            -1.0f,-1.0f, 1.0f,
-            -1.0f, 1.0f, 1.0f, // triangle 1 : end
-            1.0f, 1.0f,-1.0f, // triangle 2 : begin
-            -1.0f,-1.0f,-1.0f,
-            -1.0f, 1.0f,-1.0f, // triangle 2 : end
-            1.0f,-1.0f, 1.0f,
-            -1.0f,-1.0f,-1.0f,
-            1.0f,-1.0f,-1.0f,
-            1.0f, 1.0f,-1.0f,
-            1.0f,-1.0f,-1.0f,
-            -1.0f,-1.0f,-1.0f,
-            -1.0f,-1.0f,-1.0f,
-            -1.0f, 1.0f, 1.0f,
-            -1.0f, 1.0f,-1.0f,
-            1.0f,-1.0f, 1.0f,
-            -1.0f,-1.0f, 1.0f,
-            -1.0f,-1.0f,-1.0f,
-            -1.0f, 1.0f, 1.0f,
-            -1.0f,-1.0f, 1.0f,
-            1.0f,-1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f,
-            1.0f,-1.0f,-1.0f,
-            1.0f, 1.0f,-1.0f,
-            1.0f,-1.0f,-1.0f,
-            1.0f, 1.0f, 1.0f,
-            1.0f,-1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f,-1.0f,
-            -1.0f, 1.0f,-1.0f,
-            1.0f, 1.0f, 1.0f,
-            -1.0f, 1.0f,-1.0f,
-            -1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f,
-            -1.0f, 1.0f, 1.0f,
-            1.0f,-1.0f, 1.0f
-        };
+
     private float positions[] =
         {
             0, 0, 0,
@@ -163,45 +115,28 @@ public class MyObject {
             1,1,0,
         }; 
     
-    private float tcolors[] =
-        {
-            0.583f,  0.771f,  0.014f,
-            0.609f,  0.115f,  0.436f,
-            0.327f,  0.483f,  0.844f,
-            0.822f,  0.569f,  0.201f,
-            0.435f,  0.602f,  0.223f,
-            0.310f,  0.747f,  0.185f,
-            0.597f,  0.770f,  0.761f,
-            0.559f,  0.436f,  0.730f,
-            0.359f,  0.583f,  0.152f,
-            0.483f,  0.596f,  0.789f,
-            0.559f,  0.861f,  0.639f,
-            0.195f,  0.548f,  0.859f,
-            0.014f,  0.184f,  0.576f,
-            0.771f,  0.328f,  0.970f,
-            0.406f,  0.615f,  0.116f,
-            0.676f,  0.977f,  0.133f,
-            0.971f,  0.572f,  0.833f,
-            0.140f,  0.616f,  0.489f,
-            0.997f,  0.513f,  0.064f,
-            0.945f,  0.719f,  0.592f,
-            0.543f,  0.021f,  0.978f,
-            0.279f,  0.317f,  0.505f,
-            0.167f,  0.620f,  0.077f,
-            0.347f,  0.857f,  0.137f,
-            0.055f,  0.953f,  0.042f,
-            0.714f,  0.505f,  0.345f,
-            0.783f,  0.290f,  0.734f,
-            0.722f,  0.645f,  0.174f,
-            0.302f,  0.455f,  0.848f,
-            0.225f,  0.587f,  0.040f,
-            0.517f,  0.713f,  0.338f,
-            0.053f,  0.959f,  0.120f,
-            0.393f,  0.621f,  0.362f,
-            0.673f,  0.211f,  0.457f,
-            0.820f,  0.883f,  0.371f,
-            0.982f,  0.099f,  0.879f
-        };
+    private float texCoords[] = {
+            0, 0,
+            1, 0,
+            1, 1,
+            0, 1,
+            
+            0, 0,
+            1, 0,
+            1, 1,
+            0, 1,
+            
+            0, 0,
+            1, 0,
+            1, 1,
+            0, 1,
+            
+            0, 0,
+            1, 0,
+            1, 1,
+            0, 1,
+    };
+
 
     //Best to use smallest data type possible for indexes 
     //We could even use byte here...
@@ -211,9 +146,80 @@ public class MyObject {
     private FloatBuffer colorData = Buffers.newDirectFloatBuffer(colors);
     private FloatBuffer normalData = Buffers.newDirectFloatBuffer(normals);
     private ShortBuffer indexData = Buffers.newDirectShortBuffer(indexes);
+    private FloatBuffer texData = Buffers.newDirectFloatBuffer(texCoords);
     
+    LevelTexture faceTexture;
+    private int texUnitLoc;
     private int shaderprogram;
     
+    public MyObject(GL2 gl) {
+        faceTexture = new LevelTexture(gl, faceTex, faceTexExt, true);
+        glu = new GLU();
+        //Generate 2 VBO buffer and get their IDs
+        gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
+        gl.glGenBuffers(1,bufferIds,0);
+       
+        //This buffer is now the current array buffer
+        //array buffers hold vertex attribute data
+        gl.glBindBuffer(GL.GL_ARRAY_BUFFER,bufferIds[0]);
+        
+        //This is just setting aside enough empty space
+        //for all our data
+        gl.glBufferData(GL2.GL_ARRAY_BUFFER,    //Type of buffer  
+                   (positions.length + texCoords.length) * FloatByteSize, //size needed
+                   null,    //We are not actually loading data here yet
+                   GL2.GL_STATIC_DRAW); //We expect once we load this data we will not modify it
+        
+        gl.glBufferSubData(GL.GL_ARRAY_BUFFER, 0, positions.length * FloatByteSize, posData);
+        gl.glBufferSubData(GL.GL_ARRAY_BUFFER, positions.length * FloatByteSize, 
+                texCoords.length * FloatByteSize, texData);
+        
+        gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
+        gl.glEnableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
+        
+        try {
+            shaderprogram = Shader.initShaders(gl, VERTEX_SHADER, FRAGMENT_SHADER);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        texUnitLoc = gl.glGetUniformLocation(shaderprogram, "texUnit");
+
+    }
+    public void draw(GL2 gl) {
+        gl.glPushMatrix();
+            //gl.glScaled(0.5, 0.5, 0.5);
+            //gl.glTranslated(-0.5, 0, 0.5);
+            
+            //Use the shader
+            gl.glUseProgram(shaderprogram);
+            
+            gl.glUniform1i(texUnitLoc,0);
+            gl.glBindTexture(GL2.GL_TEXTURE_2D, faceTexture.getTextureId());
+            //Set wrap mode for texture in S direction
+            //gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT); 
+            //Set wrap mode for texture in T direction
+            //gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_EDGE);
+           
+            gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
+            gl.glEnableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
+            gl.glBindBuffer(GL.GL_ARRAY_BUFFER, bufferIds[0]);
+            
+            gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0);
+            gl.glTexCoordPointer(2, GL.GL_FLOAT, 0, positions.length * FloatByteSize);
+            
+            gl.glDrawArrays(GL2.GL_QUADS, 0, 4);
+            
+            
+            gl.glUseProgram(0);
+            gl.glDisableClientState(GL2.GL_VERTEX_ARRAY);
+            gl.glDisableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
+            //Un-bind the buffer. 
+            //This is not needed in this simple example but good practice
+            gl.glBindBuffer(GL.GL_ARRAY_BUFFER,0);
+        gl.glPopMatrix();
+    }
+    /*
     public MyObject(GL2 gl) {
         glu = new GLU();
         //Generate 2 VBO buffer and get their IDs
@@ -246,8 +252,8 @@ public class MyObject {
                 normals.length*FloatByteSize,
                 normalData);
         
-        
-        /* Uncomment if we want to use indexes
+        /*
+         Uncomment if we want to use indexes
         //Now for the element array
         //Element arrays hold indexes to an array buffer
         gl.glBindBuffer(GL2.GL_ELEMENT_ARRAY_BUFFER, bufferIds[1]);
@@ -257,7 +263,7 @@ public class MyObject {
         gl.glBufferData(GL2.GL_ELEMENT_ARRAY_BUFFER,      
                indexes.length *Short.BYTES,
                indexData, GL2.GL_STATIC_DRAW);
-        */
+        
         
         //Enable client state
         gl.glEnableClientState( GL2.GL_VERTEX_ARRAY);
@@ -273,6 +279,8 @@ public class MyObject {
         }
 
     }
+    */
+    /*
     public void draw(GL2 gl) {
         gl.glPushMatrix();
             gl.glScaled(0.5, 0.5, 0.5);
@@ -318,7 +326,7 @@ public class MyObject {
                  
             //gl.glDrawElements(GL2.GL_TRIANGLES, 6, GL2.GL_UNSIGNED_SHORT,0);    
             
-            */
+            
             
             //Unbind shader
             gl.glUseProgram(0);
@@ -329,4 +337,5 @@ public class MyObject {
             gl.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER,0);
         gl.glPopMatrix();
     }
+    */
 }

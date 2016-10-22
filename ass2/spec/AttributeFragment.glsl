@@ -1,10 +1,13 @@
 #version 130
-//in vec2 texCoord;
-//uniform Sampler2D texUnit1;
 
-void main (void) {	
-    
-    gl_FragColor = gl_Color;
-    //gl_FragColor = texture(texUnit1, textCoord);
+in vec2 texCoordV;
+
+uniform sampler2D texUnit;
+
+
+
+void main (void) {  
+   
+    gl_FragColor = texture(texUnit,texCoordV);
+    //gl_FragColor = texture(texUnit,texCoordV) * gl_Color;
 }
-
