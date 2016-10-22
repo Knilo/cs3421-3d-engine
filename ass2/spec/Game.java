@@ -54,15 +54,17 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private final int maxRainParticles = 1000;
     private RainParticle[] rainParticles = new RainParticle[maxRainParticles];
     private static int framerate = 60;
-    private String grassTexture = "grass_top.png";
+    
+    //textures
+    private String grassTexture = "grass_top.png"; //texture taken from video game "Minecraft"
     private String grassTextureExt = "png";
     private final int grassTextureId = 0;
     
-    private String leafTexture = "leaves.png";
+    private String leafTexture = "leaves.png"; //texture taken from video game "Minecraft"
     private String leafTextureExt = "png";
     private final int leafTextureId = 1;
     
-    private String trunkTexture = "trunk.png";
+    private String trunkTexture = "trunk.png"; //texture taken from video game "Minecraft"
     private String trunkTextureExt = "png";
     private final int trunkTextureId = 2;
     
@@ -74,18 +76,18 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private String roadTextureExt = "png";
     private final int roadTextureId = 4;
     
-    private String bluePortalTexture = "blueportal.png";
+    private String bluePortalTexture = "blueportal.png"; //texture taken from video game "Portal"
     private String bluePortalTextureExt = "png";
     private final int bluePortalTextureId = 5;
     
-    private String orangePortalTexture = "orangeportal.png";
+    private String orangePortalTexture = "orangeportal.png"; //texture taken from video game "Portal"
     private String orangePortalTextureExt = "png";
     private final int orangePortalTextureId = 6;
     
-    private String creeperTexture = "creeper-body.png";
+    private String creeperTexture = "creeper-body.png"; //texture taken from video game "Minecraft"
     private String creeperTextureExt = "png";
     
-    private String playerTexture = "steve.png";
+    private String playerTexture = "steve.png"; //texture taken from video game "Minecraft"
     private String playerTextureExt = "png";
 
     EnemyObject creeperHead;
@@ -147,7 +149,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         Game game = new Game(terrain);
         game.run(game);
     }
-
+    
+    
+    /**
+     * Main display method
+     */
 	@Override
 	public void display(GLAutoDrawable drawable) {
 		// TODO Auto-generated method stub
@@ -220,7 +226,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);   
 	}
-
+	
+	/**
+	 * Set source of main lighting
+	 * @param gl GL object
+	 */
 	private void setSunlight(GL2 gl) {
 		gl.glPushMatrix();			
 			gl.glTranslated(myTerrain.size().getWidth()/2, 0, myTerrain.size().getHeight()/2);
@@ -230,7 +240,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	        
         gl.glPopMatrix();
 	}
-
+	
+	/**
+	 * Updates momentum of avatar
+	 */
 	private void updateMomentum() {
 	    //insert momentum here
 	    posX += momentum * Math.sin(Math.toRadians(angleY));
@@ -255,6 +268,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 
 	}
 	
+	/**
+	 * Get altitude height of player's position
+	 */
 	private void updateHeight() { 
 		//System.out.println("############################################ x,z: " + posX +","+posZ );
 		
@@ -267,6 +283,12 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	    
 	}
 	
+	/**
+	 * Set the camera's location and render the avatar if 3rd person mode enabled
+	 * @param gl GL object
+	 * @param xOffset x coordinate camera offset from player object if 3rd person mode enabled
+	 * @param zOffset z coordinate camera offset from player object if 3rd person mode enabled
+	 */
 	private void setCamera(GL2 gl, double xOffset, double zOffset) {
 	    double cameraAngleShift = (Math.tan(Math.toRadians(cameraAngle))); //DEBUG: Allow for viewing angle
 		glu.gluLookAt(0, 0.35, 0.0, 0 + xOffset, 0.1 + cameraAngleShift, 0 - zOffset, 0, 1, 0);
@@ -284,6 +306,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glPopMatrix();
 	}
 	
+	/**
+	 * Check if player has entered a portal and teleports player if they are
+	 * @param gl GL Object
+	 */
 	private void checkPortals(GL2 gl) {
 	    double[] curPos = {posX, posY, posZ};
 	    for (PortalPair pp : this.myTerrain.portalPairs()) {
@@ -305,6 +331,13 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	    }
 	}
 	
+	/**
+	 * Calculate whether two positions are within a specific range
+	 * @param pos1 position 1
+	 * @param pos2 position 2
+	 * @param maxRange the maximum range between the 2 positions 
+	 * @return true if position 1 is within maxRange of position 2, false otherwise
+	 */
 	private boolean inRange (double[] pos1, double[] pos2, double maxRange) {
 	    if (pos1.length != pos2.length) {
 	        throw new IndexOutOfBoundsException("pos1 array length not equal to pos2 array length");
@@ -321,6 +354,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	    
 	}
 	
+	/**
+	 * Display rain if enabled
+	 * @param gl GL object
+	 */
 	private void displayRain(GL2 gl) {
 	      //Rain system adapted from particle system example in week 9 lecture code
 	      if (enabledRain) {
@@ -396,6 +433,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	      }
 	}
 	
+	/**
+	 * Display roads
+	 * @param gl GL Object
+	 */
 	private void displayRoads(GL2 gl) {
 		
 		for (Road currRoad : this.myTerrain.roads()) {
@@ -458,6 +499,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		
 	}
 	
+	/**
+	 * Render enemy if they exist
+	 * @param gl GL Object
+	 */
 	private void displayEnemies(GL2 gl) {
 	    for (Enemy currEnemy : this.myTerrain.enemies()) {
 	        double currEnemyPos[] = currEnemy.getPosition();
@@ -468,7 +513,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	        gl.glPopMatrix();
 	    }
 	}
-
+	
+	/**
+	 * Render trees if they exist
+	 * @param gl GL Object
+	 */
 	private void displayTrees(GL2 gl) {
 		double trunkHeight = 5;
 		double trunkRadius = 1;
@@ -487,14 +536,24 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 			gl.glPopMatrix();
 		}
 	}
-
+	
+	/**
+	 * Render the trunk part of a tree
+	 * @param gl GL object
+	 * @param height Height of the tree trunk
+	 */
 	private void drawTrunk(GL2 gl, double height) {
 		gl.glPushMatrix();	
 	        CuboidObject.drawCuboid(gl, height, 2, myTextures[trunkTextureId].getTextureId());
         gl.glPopMatrix();
 	}
 	
-
+	
+	/**
+     * Render the canopy part of a tree
+     * @param gl GL object
+     * @param width How wide each leaf block is
+     */
 	private void drawLeaves(GL2 gl, double width) {
 	    gl.glPushMatrix();
 	        
@@ -538,7 +597,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
             */
         gl.glPopMatrix();
 	}
-
+	
+	/**
+	 * Render the terrain
+	 * @param gl GL Object
+	 */
 	private void displayTerrain(GL2 gl) {
 		gl.glPushMatrix();
 		Dimension d = this.myTerrain.size();
@@ -622,6 +685,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		gl.glPopMatrix();
 	}
 	
+	/**
+	 * Render portals
+	 * @param gl GL Object
+	 */
 	private void displayPortals(GL2 gl) {
 	    gl.glPushMatrix();
 	    for (PortalPair pp : this.myTerrain.portalPairs()) {
@@ -731,16 +798,6 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         
         glu = new GLU();
         glu.gluPerspective(75, (float)width/(float)height, 0.01, 100.0);
-        /*
-        double aspect = (1.0 * width) / height;
-        double size = 1.0;
-        if(aspect >=1){
-             gl.glOrtho(-size * aspect, size* aspect, -size, size, 1, 10);
-         } else {
-             gl.glOrtho(-size, size, -size/aspect, size/aspect, 1, 10);
-         }
-         */
-       // gl.glOrtho(-2,2,-2,2,1,10);
         
         myTextures[0] = new LevelTexture(gl, grassTexture, grassTextureExt, true);
         myTextures[1] = new LevelTexture(gl, leafTexture, leafTextureExt, true);

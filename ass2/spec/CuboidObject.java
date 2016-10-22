@@ -2,6 +2,11 @@ package ass2.spec;
 
 import com.jogamp.opengl.GL2;
 
+/**
+ * CuboidObject creates a simple cube with a single texture
+ * @author Weilon
+ *
+ */
 public class CuboidObject {
     public static void drawCuboid (GL2 gl, double height, double width, int textureId) {
         gl.glPushMatrix();
