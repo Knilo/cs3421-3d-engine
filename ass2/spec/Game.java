@@ -456,8 +456,6 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		for (Road currRoad : this.myTerrain.roads()) {
 			double width = currRoad.width();
 			gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[roadTextureId].getTextureId());
-			
-			//gl.glColor3f(100, 0, 0);
 	
 			for (double t = 0.02; t < currRoad.size()-0.01; t+=0.01) {
 				gl.glPushMatrix();
@@ -763,13 +761,17 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         
 //        float sunlight[] = {0.6f, 0.6f, 0.6f, 1.0f};
         sunlight = new float[4];
-        sunlight[0] = 5.0f;
-        sunlight[1] = 1.0f;
-        sunlight[2] = 1.0f;
-        sunlight[3] = 1.0f;
-//
-//        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, sunlight, 0);       
-//        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, sunlight,0); // Global ambient light.
+        sunlight[0] = 1.5f;
+        sunlight[1] = 0.5f;
+        sunlight[2] = 0.5f;
+        sunlight[3] = 0.5f;
+//	
+//        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, sunlight, 0);  
+        float globamb[] = {0.8f, 0.8f, 0.8f, 1.0f,};
+        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globamb,0); // Global ambient light.
+        
+
+        	
         
         sunlightPos = myTerrain.getSunlight();       
         float temp = sunlightPos[0];
