@@ -1,7 +1,10 @@
 package ass2.spec;
 
-import com.jogamp.opengl.GL2;
-
+/**
+ * Enemy class simply stores location of an enemy
+ * @author Weilon
+ *
+ */
 public class Enemy {
     private double[] myPos;
     

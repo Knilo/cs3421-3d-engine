@@ -176,7 +176,7 @@ public class EnemyObject {
             this.headTexExt = headTexExt;
         }   
         
-        faceTexture = new LevelTexture(gl, headTex, headTexExt, true);
+        faceTexture = new LevelTexture(gl, this.headTex, this.headTexExt, true);
         glu = new GLU();
         //Generate a VBO buffer and get their IDs
         gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
@@ -230,10 +230,6 @@ public class EnemyObject {
             
             gl.glUniform1i(texUnitLoc,0);
             gl.glBindTexture(GL2.GL_TEXTURE_2D, faceTexture.getTextureId());
-            //Set wrap mode for texture in S direction
-            //gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_S, GL2.GL_REPEAT); 
-            //Set wrap mode for texture in T direction
-            //gl.glTexParameteri(GL2.GL_TEXTURE_2D, GL2.GL_TEXTURE_WRAP_T, GL2.GL_CLAMP_TO_EDGE);
            
             gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
             gl.glEnableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
@@ -252,7 +248,6 @@ public class EnemyObject {
             gl.glDisableClientState(GL2.GL_NORMAL_ARRAY);
             
             //Un-bind the buffer. 
-            //This is not needed in this simple example but good practice
             gl.glBindBuffer(GL.GL_ARRAY_BUFFER,0);
         gl.glPopMatrix();
     }
