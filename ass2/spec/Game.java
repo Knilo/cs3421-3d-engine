@@ -259,7 +259,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		//System.out.println("############################################ x,z: " + posX +","+posZ );
 		
 	    try {
-	        posY = myTerrain.altitude(posX, posZ);
+	        posY = myTerrain.altitude(posZ, posX);
 	       //System.out.println("############################################ height: " + posY);
 	    } catch (ArrayIndexOutOfBoundsException e) {
 	        posY = 0;
@@ -415,7 +415,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 					double p1[] = currRoad.point(t+0.01);					
 					double a = Math.toDegrees(Math.atan(Math.abs((p1[1]-p0[1])/(p1[0]-p0[0]))));
 					
-					gl.glTranslated(p0[0], this.myTerrain.altitude(p0[0], p0[1])+0.01, p0[1]);					
+					gl.glTranslated(p0[0], this.myTerrain.altitude(p0[0], p0[1])+0.02, p0[1]);					
 					gl.glRotated(a, 0, 1, 0);
 					
 					gl.glBegin(GL2.GL_QUADS);
