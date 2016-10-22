@@ -14,8 +14,8 @@ public class PlayerObject {
     int bufferIds[] = new int[2];
     private String headTex = "creeper.png"; //default value
     private String headTexExt = "png"; //default value
-    private static final String VERTEX_SHADER = "ass2/spec/AttributeVertex.glsl";
-    private static final String FRAGMENT_SHADER = "ass2/spec/AttributeFragment.glsl";
+    private static final String VERTEX_SHADER = "ass2/spec/vertShader.glsl";
+    private static final String FRAGMENT_SHADER = "ass2/spec/fragShader.glsl";
 
     private float positions[] =
         {

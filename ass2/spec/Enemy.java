@@ -8,6 +8,7 @@ package ass2.spec;
 public class Enemy {
     private double[] myPos;
     
+    //initialise enemy positions
     public Enemy(double x, double y, double z) {
         myPos = new double[3];
         myPos[0] = x;

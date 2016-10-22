@@ -108,13 +108,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
           GLJPanel panel = new GLJPanel();
           panel.addGLEventListener(this);
           
-          // DEBUG: add a key listener to respond to keypresses
+          // Add a key listener to respond to keypresses
           // the panel needs to be focusable to get key events
           panel.addKeyListener(game);        
           panel.setFocusable(true);   
-          
-          
- 
+
           // Add an animator to call 'display' at 60fps        
           FPSAnimator animator = new FPSAnimator(framerate);
           animator.add(panel);
@@ -163,42 +161,35 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     	//Forgetting to clear the depth buffer can cause problems 
     	//such as empty black screens.
     	//gl.glClearColor(1, 1, 1, 1);
-    	gl.glClearColor(sunlight[0]*0.8f + 0.2f, sunlight[1]*0.8f + 0.2f, sunlight[2] + 0.9f, 1);
-    	gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+    	gl.glClearColor(sunlight[0]*0.8f + 0.2f, sunlight[1]*0.8f + 0.2f, sunlight[2] + 0.9f, 1); //set the background colour in accordance to sunlight level
+    	gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT); //clear the scene
     	
+    	//load the matrix and model view
     	gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();  
+
         
-        //Move camera
-        
-        //round off numbers to 1 decimal place for now to make debugging/math easier
-        DecimalFormat df = new DecimalFormat("#.##");       
+        //round off numbers to 4 decimal places for now to make debugging/math easier
+        DecimalFormat df = new DecimalFormat("#.####");       
         posX = Double.parseDouble(df.format(posX));	
         posZ = Double.parseDouble(df.format(posZ));
         
-        updateMomentum();
-        updateHeight();
-        //updateLight();
+        updateMomentum(); //update player's momentum/velocity
+        updateHeight(); //update the player's height depending on their x/z location
+        //updateLight(); //update the daylight cycle
         
         
-        checkPortals(gl);
-        double sinShift = sinDeg(angleY);
-        double cosShift = cosDeg(angleY);
-        setCamera(gl, sinShift, cosShift);
+        checkPortals(gl); //check player's location for any portals nearby
         
-        
-        //figure out whats perpendicular to the direction of the light
-        // rotate accordingly
-        
-        //texture a VBO in a shader
-        //texture example shader/VBO shader week 8
-        //vertex shader outputs coordsinates
-        //frag shader, take in texture coord, use coord to look up value using texture function
+        double sinShift = sinDeg(angleY); //where the camera will look towards on the X axis
+        double cosShift = cosDeg(angleY); //where the camera will look towards on the Z axis
+        setCamera(gl, sinShift, cosShift); //set camera to the player's location and desired angle
         
         if (firstPersonEnabled) {
-            gl.glTranslated(-posX, -posY, posZ);
+            gl.glTranslated(-posX, -posY, posZ); //camera will twist on itself to rotate
         } else {
-            gl.glTranslated(-posX + 0.5 * sinShift, -posY, posZ - 0.5 * cosShift); //shift axis to twist on
+            gl.glTranslated(-posX + 0.5 * sinShift, -posY, posZ - 0.5 * cosShift); 
+            //shift axis to twist on to the avatar object instead of camera itself
         }
         
         gl.glPushMatrix();
@@ -209,12 +200,12 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     
             //display things
             setSunlight(gl);
-            displayTerrain(gl);
-            displayTrees(gl);
-        	displayRoads(gl);
-        	displayEnemies(gl);
-        	displayPortals(gl);
-        	displayRain(gl);
+            displayTerrain(gl); //render terrain
+            displayTrees(gl); //render trees
+        	displayRoads(gl); //render roads
+        	displayEnemies(gl); //render enemies
+        	displayPortals(gl); //render portals
+        	displayRain(gl); //render train if enabled
         	
         	// set lighting
         	sunlightDir[2] -= 0.5;
@@ -245,11 +236,13 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	 * Updates momentum of avatar
 	 */
 	private void updateMomentum() {
-	    //insert momentum here
+	    //set player's position depending on current angle of rotation
 	    posX += momentum * Math.sin(Math.toRadians(angleY));
 	    posZ += momentum * Math.cos(Math.toRadians(angleY));
+	    
+	    //momentum will decay by 20% at every iteration
 	    momentum = momentum * 0.80;
-	    if (Math.abs(momentum) < 0.005) {
+	    if (Math.abs(momentum) < 0.005) { //stop the player if momentum is less than 0.005
 	        momentum = 0;
 	    }
 	    
@@ -290,15 +283,17 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	 * @param zOffset z coordinate camera offset from player object if 3rd person mode enabled
 	 */
 	private void setCamera(GL2 gl, double xOffset, double zOffset) {
-	    double cameraAngleShift = (Math.tan(Math.toRadians(cameraAngle))); //DEBUG: Allow for viewing angle
-		glu.gluLookAt(0, 0.35, 0.0, 0 + xOffset, 0.1 + cameraAngleShift, 0 - zOffset, 0, 1, 0);
+	    double yOffset = (Math.tan(Math.toRadians(cameraAngle))); //set player's viewing top-down viewing angle
+	    //glu.gluLook at ([where the camera will be located at] x, y, z, [where the camera is looking towards] x, y, z, [camera transformation])
+	    //set camera to look at specific location depending on player's viewing ange
+		glu.gluLookAt(0, 0.35 - yOffset, 0.0, 0 + xOffset, 0.1 + yOffset, 0 - zOffset, 0, 1, 0);
         gl.glPushMatrix();
-            gl.glTranslated(0 + 0.5 * xOffset, -0.1, 0 - 0.5 * zOffset);
+            gl.glTranslated(0 + 0.5 * xOffset, -0.1, 0 - 0.5 * zOffset); //move avatar forward to see the avatar's head if 3rd person enabled
             gl.glScaled(0.2, 0.2, 0.2);
             if (!firstPersonEnabled) {
-                gl.glTranslated(0, 0.65, 0);
+                gl.glTranslated(0, 0.65, 0); //move camera slightly upwards for better vision
                 if (!freeLookEnabled) {
-                    gl.glRotated(-angleY, 0, 1, 0); //follow the head
+                    gl.glRotated(-angleY, 0, 1, 0); //follow the head if freelook is not enabled
                 }
                 playerHead.draw(gl); //draw the avatar
                 
@@ -312,17 +307,22 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	 */
 	private void checkPortals(GL2 gl) {
 	    double[] curPos = {posX, posY, posZ};
+	    
+	    //loop through every portal pair
 	    for (PortalPair pp : this.myTerrain.portalPairs()) {
+	        //check if player is near a blue portal
 	        if (inRange(curPos, pp.bluePortalPos, 0.2)) {
 	            curPos = pp.orangePortalPos;
+	            //move player to corresponding orange portal
 	            posX = curPos[0] + 0.25;
 	            posY = curPos[1];
 	            posZ = curPos[2];
 	            break;
 	        }
-	        
+	        //check if player is near an orange portal
 	        if (inRange(curPos, pp.orangePortalPos, 0.2)) {
                 curPos = pp.bluePortalPos;
+                //move player to corresponding blue portal
                 posX = curPos[0] + 0.25;
                 posY = curPos[1];
                 posZ = curPos[2];
@@ -364,69 +364,68 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     	      // Render the rainParticles
               // Enable Blending 
     	      gl.glEnable(GL2.GL_BLEND);      
-    	      //Creates an additive blend, which looks spectacular on a black background
+    	      //Creates an additive blend
     	      gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE);
     	      
     	      gl.glPushMatrix();
-    	      gl.glLoadIdentity();
-    	      gl.glTranslated(Math.sin(Math.toRadians(angleY)), 6, Math.cos(Math.toRadians(angleY)));
-    	      float y = 0;
-    	      float z = -1;
-    	      // Render the rainParticles
-    	      for (int i = 0; i < maxRainParticles; i++) {
-    	         if (rainParticles[i].active) {
-    	            // Draw the particle using our RGB values
-    	            
-    	            gl.glColor4f(rainParticles[i].r, rainParticles[i].g, rainParticles[i].b, rainParticles[i].life);
-    
-    	            gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[rainTextureId].getTextureId()); 
-    	        
-    	            
-    	            gl.glBegin(GL2.GL_QUADS);
-    
-    	            float px = rainParticles[i].x;
-    	            float py = rainParticles[i].y + y;
-    	            float pz = rainParticles[i].z + z;
-    
-    	            gl.glTexCoord2d(1, 1);
-    	            gl.glVertex3f(px + 0.5f, py + 0.5f, pz); // Top Right
-    	            gl.glTexCoord2d(0, 1);
-    	            gl.glVertex3f(px - 0.5f, py + 0.5f, pz); // Top Left
-    	            gl.glTexCoord2d(0, 0);
-    	            gl.glVertex3f(px - 0.5f, py - 0.5f, pz); // Bottom Left
-    	            gl.glTexCoord2d(1, 0);
-    	            gl.glVertex3f(px + 0.5f, py - 0.5f, pz); // Bottom Right
-    	            gl.glEnd();
-    
-    	            // Move the particle
-    	            rainParticles[i].x += rainParticles[i].speedX;
-    	            rainParticles[i].y += rainParticles[i].speedY;
-    	            rainParticles[i].z += rainParticles[i].speedZ;
-    	            if (rainParticles[i].y < -10) { //reset position
-    	                rainParticles[i].y = rainParticles[i].originalY;
-    	                rainParticles[i].speedY = -0.1f;
-    	                rainParticles[i].speedX = 0;
-    	                rainParticles[i].speedZ = 0;
-    	            }
-    	            
-    	            if (rainParticles[i].z > 0.0001) {
-    	                rainParticles[i].z -= (float) Math.random() * 0.7;
-    	            }
-    	            if (rainParticles[i].z < -10) {
-    	                rainParticles[i].z += (float) Math.random() * 1.2;
-    	            }
-    	            
-    	            
-    	            // Apply the gravity force on y-axis
-    	            rainParticles[i].speedY += -0.0008f;
-    	            
-    	            
-    	            if (enabledBurst) {
-    	               rainParticles[i].burst();
-    	            }
-    	         }
-    	      }
-    	      if (enabledBurst) enabledBurst = false;
+        	      gl.glLoadIdentity(); //render the rain regardless of position (i.e. "directly to the screen")
+        	      gl.glTranslated(Math.sin(Math.toRadians(angleY)), 6, Math.cos(Math.toRadians(angleY)));
+        	      float y = 0;
+        	      float z = -1;
+        	      // Render the rainParticles
+        	      for (int i = 0; i < maxRainParticles; i++) {
+        	         if (rainParticles[i].active) {
+        	            // Draw the particle using our RGB values
+        	            
+        	            gl.glColor4f(rainParticles[i].r, rainParticles[i].g, rainParticles[i].b, rainParticles[i].life);
+        
+        	            gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[rainTextureId].getTextureId()); 
+        	            
+        	            gl.glBegin(GL2.GL_QUADS);
+        
+            	            float px = rainParticles[i].x;
+            	            float py = rainParticles[i].y + y;
+            	            float pz = rainParticles[i].z + z;
+            
+            	            gl.glTexCoord2d(1, 1);
+            	            gl.glVertex3f(px + 0.5f, py + 0.5f, pz); // Top Right
+            	            gl.glTexCoord2d(0, 1);
+            	            gl.glVertex3f(px - 0.5f, py + 0.5f, pz); // Top Left
+            	            gl.glTexCoord2d(0, 0);
+            	            gl.glVertex3f(px - 0.5f, py - 0.5f, pz); // Bottom Left
+            	            gl.glTexCoord2d(1, 0);
+            	            gl.glVertex3f(px + 0.5f, py - 0.5f, pz); // Bottom Right
+        	            gl.glEnd();
+        
+        	            // Move the particle
+        	            rainParticles[i].x += rainParticles[i].speedX;
+        	            rainParticles[i].y += rainParticles[i].speedY;
+        	            rainParticles[i].z += rainParticles[i].speedZ;
+        	            if (rainParticles[i].y < -10) { //reset position
+        	                rainParticles[i].y = rainParticles[i].originalY;
+        	                rainParticles[i].speedY = -0.1f;
+        	                rainParticles[i].speedX = 0;
+        	                rainParticles[i].speedZ = 0;
+        	            }
+        	            
+        	            if (rainParticles[i].z > 0.0001) {
+        	                rainParticles[i].z -= (float) Math.random() * 0.7;
+        	            }
+        	            if (rainParticles[i].z < -10) {
+        	                rainParticles[i].z += (float) Math.random() * 1.2;
+        	            }
+        	            
+        	            
+        	            // Apply the gravity force on y-axis
+        	            rainParticles[i].speedY += -0.0008f;
+        	            
+        	            
+        	            if (enabledBurst) {
+        	               rainParticles[i].burst(); //reset rain
+        	            }
+        	         }
+        	      }
+        	      if (enabledBurst) enabledBurst = false;
     	      gl.glPopMatrix();
     	      
     	      gl.glDisable(GL2.GL_BLEND);
@@ -520,7 +519,6 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	 */
 	private void displayTrees(GL2 gl) {
 		double trunkHeight = 5;
-		double trunkRadius = 1;
 		double leavesRadius = 2;
 		
 		for(Tree currTree : this.myTerrain.trees()) {
@@ -557,6 +555,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	private void drawLeaves(GL2 gl, double width) {
 	    gl.glPushMatrix();
 	        
+	        //We're drawing the canopy in the style of the Minecraft standard oak tree
 	        for (int x = -2; x <= 2; x++) {
 	            for (int z = -2; z <= 2; z++) {
     	            gl.glPushMatrix();
@@ -587,14 +586,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
             gl.glPopMatrix();
             gl.glTranslated(0, width, 0);
             CuboidObject.drawCuboid(gl, width, width, myTextures[leafTextureId].getTextureId());
-	        /*
-    	    GLUquadric sphere = glu.gluNewQuadric();
-    	    gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[leafTextureId].getTextureId());
-            //glut.glutSolidSphere(radius, 40, 40);
-    	    glu.gluQuadricTexture(sphere, true);
-            glu.gluSphere(sphere, 4, 20, 20);
-            gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[grassTextureId].getTextureId());
-            */
+
         gl.glPopMatrix();
 	}
 	
@@ -610,6 +602,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		double p1[] = new double[3];
 		double p2[] = new double[3];
 		
+		//use grass texture
 		gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[grassTextureId].getTextureId());
 		//specifiy how texture values combine with current surface color values.
 		gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE );
@@ -770,6 +763,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         
         //enable textures
         gl.glEnable(GL2.GL_TEXTURE_2D);
+        
+        //initialise textures
         myTextures = new LevelTexture[7];
         myTextures[0] = new LevelTexture(gl, grassTexture, grassTextureExt, true);
         myTextures[1] = new LevelTexture(gl, leafTexture, leafTextureExt, true);
@@ -779,6 +774,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         myTextures[5] = new LevelTexture(gl, bluePortalTexture, bluePortalTextureExt, true);
         myTextures[6] = new LevelTexture(gl, orangePortalTexture, orangePortalTextureExt, true);
         
+        //initialise VBO (player avatar and enemies)
         creeperHead = new EnemyObject(gl, creeperTexture, creeperTextureExt);
         playerHead = new PlayerObject(gl, playerTexture, playerTextureExt);
         //init rain particles
@@ -814,7 +810,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		switch (e.getKeyCode()) {
 		  
             case KeyEvent.VK_UP:
-                //cameraAngle += 10;
+                
                 if(momentum < 0.08) {
                     momentum += 0.03;
                 } else {
@@ -822,7 +818,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
                 }
                 break;
             case KeyEvent.VK_DOWN:
-            	//cameraAngle -= 10;
+            	
                 if (momentum > 0) {
                     momentum = 0;
                 } else {
@@ -868,11 +864,11 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
                 break;
                 
             case KeyEvent.VK_Q:
-                
+                cameraAngle += 2;
                 //scale -= 0.1;
                 break;
             case KeyEvent.VK_E:
-                
+                cameraAngle -= 2;
                 //scale += 0.1;
                 break;
             

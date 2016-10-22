@@ -3,7 +3,7 @@ package ass2.spec;
 import com.jogamp.opengl.GL2;
 
 /**
- * CuboidObject creates a simple cube with a single texture
+ * CuboidObject creates a simple cuboid (six-sided prism) with a single texture 
  * @author Weilon
  *
  */
@@ -11,7 +11,9 @@ public class CuboidObject {
     public static void drawCuboid (GL2 gl, double height, double width, int textureId) {
         gl.glPushMatrix();
             gl.glTranslated(-width/2, 0, width/2); //centre the cuboid
-            gl.glBindTexture(GL2.GL_TEXTURE_2D, textureId);
+            gl.glBindTexture(GL2.GL_TEXTURE_2D, textureId); //bind assigned texture to opengl
+            
+            //begin drawing of cuboid
             gl.glBegin(GL2.GL_QUADS);
             // front   
             

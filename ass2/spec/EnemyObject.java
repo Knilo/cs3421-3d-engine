@@ -10,13 +10,14 @@ import com.jogamp.opengl.glu.GLU;
 
 public class EnemyObject {
     GLU glu;
-    private static final int FloatByteSize = 4;//Float.SIZE / 8;
+    private static final int FloatByteSize = Float.SIZE / 8; //size of float in bytes
     int bufferIds[] = new int[2];
-    private String headTex = "steve.png"; //default value
-    private String headTexExt = "png"; //default value
-    private static final String VERTEX_SHADER = "ass2/spec/AttributeVertex.glsl";
-    private static final String FRAGMENT_SHADER = "ass2/spec/AttributeFragment.glsl";
-
+    private String headTex = "steve.png"; //default texture
+    private String headTexExt = "png"; //default texture filename extension
+    private static final String VERTEX_SHADER = "ass2/spec/vertShader.glsl";
+    private static final String FRAGMENT_SHADER = "ass2/spec/fragShader.glsl";
+    
+    //create object mesh as a set of vertices.
     private float positions[] =
         {
             0, 0, 0,
@@ -51,6 +52,7 @@ public class EnemyObject {
         };
     
     
+    //create corresponding normals
     private float normals[] =
         {
                 0, 0, 0,
@@ -83,44 +85,8 @@ public class EnemyObject {
                 1, 1, 0,
                 1, 0, 0
         };
-
-    //There should be a matching entry in this array for each entry in
-    //the positions array
     
-    private float colors[] = 
-        {
-            //front
-            1,0,0, 
-            0,1,0,
-            1,1,1,
-            0,0,0,
-            
-            0,0,1, 
-            1,1,0,
-            1,0,0, 
-            0,1,0,
-            
-            1,1,1,
-            0,0,0,
-            0,0,1, 
-            1,1,0,
-            
-            1,0,0, 
-            0,1,0,
-            1,1,1,
-            0,0,0,
-            
-            0,0,1, 
-            1,1,0,
-            1,0,0, 
-            0,1,0,
-            
-            1,1,1,
-            0,0,0,
-            0,0,1, 
-            1,1,0,
-        }; 
-    
+    //create corresponding texture coordinates mapping the texture to the mesh
     private float texCoords[] = {
             //front
             0, 0,
@@ -133,9 +99,6 @@ public class EnemyObject {
             1, 1,
             0.45f, 1,
             0.45f, 0,
-            
-            
-            
             
             //top
             0, 0,
@@ -162,15 +125,17 @@ public class EnemyObject {
             0, 1
     };
     
+    //convert arrays into buffers
     private FloatBuffer posData = Buffers.newDirectFloatBuffer(positions);
     private FloatBuffer normalData = Buffers.newDirectFloatBuffer(normals);
     private FloatBuffer texData = Buffers.newDirectFloatBuffer(texCoords);
 
     LevelTexture faceTexture;
-    private int texUnitLoc;
-    private int shaderprogram;
+    private int texUnitLoc; //location of texture unit pointer
+    private int shaderprogram; //location of shader program pointer
     
     public EnemyObject(GL2 gl, String headTex, String headTexExt) {
+        //if head texture specified, assign the texture instead of default
         if (headTex != null && headTexExt != null) {
             this.headTex = headTex;
             this.headTexExt = headTexExt;
@@ -193,14 +158,19 @@ public class EnemyObject {
                    null,    //We are not actually loading data here yet
                    GL2.GL_STATIC_DRAW); //We expect once we load this data we will not modify it
         
+        //load in the vertex position mesh data
         gl.glBufferSubData(GL.GL_ARRAY_BUFFER, 
                             0, 
                             positions.length * FloatByteSize, 
                             posData); //buffer in vertex position data
+        
+        //load in the texture data
         gl.glBufferSubData(GL.GL_ARRAY_BUFFER, 
                             positions.length * FloatByteSize,  //buffer in texture coordinate data
                             texCoords.length * FloatByteSize, 
                             texData);
+        
+        //load in the normal data
         gl.glBufferSubData(GL.GL_ARRAY_BUFFER, 
                             (positions.length + texCoords.length) * FloatByteSize,  //buffer in normal vertex data
                             normals.length * FloatByteSize, 
@@ -217,12 +187,18 @@ public class EnemyObject {
             e.printStackTrace();
             System.exit(1);
         }
+        //get texUnit pointer
         texUnitLoc = gl.glGetUniformLocation(shaderprogram, "texUnit");
 
     }
+    
+    /**
+     * Draw the object
+     * @param gl OpenGl object
+     */
     public void draw(GL2 gl) {
         gl.glPushMatrix();
-            gl.glScaled(0.5, 0.5, 0.5);
+            gl.glScaled(0.5, 0.5, 0.5); //centre and size the object
             gl.glTranslated(-0.5, 0, 0.5);
             
             //Use the shader
@@ -234,8 +210,11 @@ public class EnemyObject {
             gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
             gl.glEnableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
             gl.glEnableClientState(GL2.GL_NORMAL_ARRAY);
+            
+            //get VBO from buffer
             gl.glBindBuffer(GL.GL_ARRAY_BUFFER, bufferIds[0]);
             
+            //load the appropriate pointers
             gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0);
             gl.glTexCoordPointer(2, GL.GL_FLOAT, 0, positions.length * FloatByteSize);
             gl.glNormalPointer(GL.GL_FLOAT, 0, (positions.length + texCoords.length) * FloatByteSize);
