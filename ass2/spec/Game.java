@@ -247,6 +247,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 				rotateVector[0] = 1;
 				rotateVector[1] = 0;
 				rotateVector[2] = 0;
+			} else {
+				rotateVector[0] = 1;
+				rotateVector[1] = 0;
+				rotateVector[2] = 0;
 			}
 			
 			
@@ -258,10 +262,10 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	        sunlightAngle += 1;
 	        
 	        //give a visual of the location of the 'sun'
-	        gl.glPushMatrix();      	        	
-	        	gl.glTranslated(5*sunlightPos[0], 5*sunlightPos[1], 5*sunlightPos[2]);	        	
-	        	glut.glutSolidSphere(1, 40, 40); 
-        	gl.glPopMatrix();
+//	        gl.glPushMatrix();      	        	
+//	        	gl.glTranslated(5*sunlightPos[0], 5*sunlightPos[1], 5*sunlightPos[2]);	        	
+//	        	glut.glutSolidSphere(1, 40, 40); 
+//        	gl.glPopMatrix();
 	        
 	        
 	        //sunlight[0] +=0.01;
