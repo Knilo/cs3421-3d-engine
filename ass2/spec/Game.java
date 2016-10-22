@@ -48,6 +48,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private final double maxMomentum = 0.35;
     private double scale = 1;
     private boolean firstPersonEnabled = false;
+    private boolean freeLookEnabled = false;
     private boolean enabledRain = false;
     private boolean enabledBurst = false;
     private final int maxRainParticles = 1000;
@@ -81,8 +82,14 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     private String orangePortalTextureExt = "png";
     private final int orangePortalTextureId = 6;
     
+    private String creeperTexture = "creeper-body.png";
+    private String creeperTextureExt = "png";
     
-    MyObject testObject;
+    private String playerTexture = "steve.png";
+    private String playerTextureExt = "png";
+
+    EnemyObject creeperHead;
+    PlayerObject playerHead;
     public Game(Terrain terrain) {
     	super("Assignment 2");
         myTerrain = terrain;
@@ -262,17 +269,17 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	
 	private void setCamera(GL2 gl, double xOffset, double zOffset) {
 	    double cameraAngleShift = (Math.tan(Math.toRadians(cameraAngle))); //DEBUG: Allow for viewing angle
-		glu.gluLookAt(0, 0.1, 0.0, 0 + xOffset, 0.1 + cameraAngleShift, 0 - zOffset, 0, 1, 0);
+		glu.gluLookAt(0, 0.35, 0.0, 0 + xOffset, 0.1 + cameraAngleShift, 0 - zOffset, 0, 1, 0);
         gl.glPushMatrix();
             gl.glTranslated(0 + 0.5 * xOffset, -0.1, 0 - 0.5 * zOffset);
             gl.glScaled(0.2, 0.2, 0.2);
             if (!firstPersonEnabled) {
                 gl.glTranslated(0, 0.65, 0);
-
-                gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[trunkTextureId].getTextureId());
+                if (!freeLookEnabled) {
+                    gl.glRotated(-angleY, 0, 1, 0); //follow the head
+                }
+                playerHead.draw(gl); //draw the avatar
                 
-                testObject.draw(gl);
-                //glut.glutSolidTeapot(0.1f);
             }
         gl.glPopMatrix();
 	}
@@ -358,7 +365,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     	            rainParticles[i].x += rainParticles[i].speedX;
     	            rainParticles[i].y += rainParticles[i].speedY;
     	            rainParticles[i].z += rainParticles[i].speedZ;
-    	            if (rainParticles[i].y < -10) {
+    	            if (rainParticles[i].y < -10) { //reset position
     	                rainParticles[i].y = rainParticles[i].originalY;
     	                rainParticles[i].speedY = -0.1f;
     	                rainParticles[i].speedX = 0;
@@ -457,7 +464,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	        gl.glPushMatrix();
 	            gl.glTranslated(currEnemyPos[0], currEnemyPos[1], currEnemyPos[2]);
 	            gl.glScaled(0.5, 0.5, 0.5);
-	            testObject.draw(gl);
+	            creeperHead.draw(gl);
 	        gl.glPopMatrix();
 	    }
 	}
@@ -705,7 +712,8 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         myTextures[5] = new LevelTexture(gl, bluePortalTexture, bluePortalTextureExt, true);
         myTextures[6] = new LevelTexture(gl, orangePortalTexture, orangePortalTextureExt, true);
         
-        testObject = new MyObject(gl);
+        creeperHead = new EnemyObject(gl, creeperTexture, creeperTextureExt);
+        playerHead = new PlayerObject(gl, playerTexture, playerTextureExt);
         //init rain particles
         for (int i = 0; i < rainParticles.length; i++) {
             rainParticles[i] = new RainParticle();
@@ -749,12 +757,20 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		switch (e.getKeyCode()) {
 		  
             case KeyEvent.VK_UP:
-                cameraAngle += 10;
-                //angleX = (angleX + 10) % 360;
+                //cameraAngle += 10;
+                if(momentum < 0.08) {
+                    momentum += 0.03;
+                } else {
+                    momentum += 0.01;
+                }
                 break;
             case KeyEvent.VK_DOWN:
-            	cameraAngle -= 10;
-                //angleX = (angleX - 10) % 360;
+            	//cameraAngle -= 10;
+                if (momentum > 0) {
+                    momentum = 0;
+                } else {
+                    momentum -= 0.01;
+                }
                 break;	
             case KeyEvent.VK_LEFT:
                    
@@ -796,20 +812,19 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
                 
             case KeyEvent.VK_Q:
                 
-                scale -= 0.1;
+                //scale -= 0.1;
                 break;
             case KeyEvent.VK_E:
                 
-                scale += 0.1;
-                break;
-            case KeyEvent.VK_R:
-                
-                posY -= 0.1;
+                //scale += 0.1;
                 break;
             
             case KeyEvent.VK_F:
-                
-                posY += 0.1;
+                if (freeLookEnabled) {
+                    freeLookEnabled = false;
+                } else {
+                    freeLookEnabled = true;
+                }
                 break;
             case KeyEvent.VK_C:
                 if (firstPersonEnabled) {

@@ -13,3 +13,7 @@
 /RainParticle.class
 /CuboidObject.class
 /PortalPair.class
+/HeadObject.class
+/EnemyObject.class
+/PlayerObject.class
+/MobObject.class

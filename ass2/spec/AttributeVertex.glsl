@@ -10,5 +10,6 @@ void main (void) {
     
     gl_FrontColor = gl_Color;
     
+    
     texCoordV= vec2(gl_MultiTexCoord0); //will be interpolated.
 }
