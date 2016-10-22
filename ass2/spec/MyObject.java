@@ -53,30 +53,35 @@ public class MyObject {
     
     private float normals[] =
         {
-            1, 1, 1,
-            1, 1, 1,
-            1, 1, 1,
-            1, 1, 1,
-            
-            1, 1, 1,
-            1, 1, 1,
-            1, 1, 1,
-            1, 1, 1,
-            
-            1, 1, 1,
-            1, 1, 1,
-            1, 1, 1,
-            1, 1, 1,
-            
-            1, 1, 1,
-            1, 1, 1,
-            1, 1, 1,
-            1, 1, 1,
-            
-            1, 1, 1,
-            1, 1, 1,
-            1, 1, 1,
-            1, 1, 1
+                0, 0, 0,
+                1, 0, 0,
+                1, 1, 0,
+                0, 1, 0,
+                
+                0, 0, -1,
+                0, 1, -1,
+                1, 1, -1,
+                1, 0, -1,
+                
+                0, 1, 0,
+                1, 1, 0,
+                1, 1, -1,
+                0, 1, -1,
+                
+                0, 0, 0,
+                0, 0, -1,
+                1, 0, -1,
+                1, 0, 0,
+                
+                0, 1, -1,
+                0, 0, -1,
+                0, 0, 0,
+                0, 1, 0,
+                
+                1, 0, -1,
+                1, 1, -1,
+                1, 1, 0,
+                1, 0, 0
         };
 
     //There should be a matching entry in this array for each entry in
@@ -135,6 +140,16 @@ public class MyObject {
             1, 0,
             1, 1,
             0, 1,
+            
+            0, 0,
+            1, 0,
+            1, 1,
+            0, 1,
+            
+            0, 0,
+            1, 0,
+            1, 1,
+            0, 1
     };
 
 
@@ -148,6 +163,7 @@ public class MyObject {
     private ShortBuffer indexData = Buffers.newDirectShortBuffer(indexes);
     private FloatBuffer texData = Buffers.newDirectFloatBuffer(texCoords);
     
+    
     LevelTexture faceTexture;
     private int texUnitLoc;
     private int shaderprogram;
@@ -155,7 +171,7 @@ public class MyObject {
     public MyObject(GL2 gl) {
         faceTexture = new LevelTexture(gl, faceTex, faceTexExt, true);
         glu = new GLU();
-        //Generate 2 VBO buffer and get their IDs
+        //Generate a VBO buffer and get their IDs
         gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_REPLACE);
         gl.glGenBuffers(1,bufferIds,0);
        
@@ -166,16 +182,27 @@ public class MyObject {
         //This is just setting aside enough empty space
         //for all our data
         gl.glBufferData(GL2.GL_ARRAY_BUFFER,    //Type of buffer  
-                   (positions.length + texCoords.length) * FloatByteSize, //size needed
+                   (positions.length + texCoords.length + normals.length) * FloatByteSize, //size needed
                    null,    //We are not actually loading data here yet
                    GL2.GL_STATIC_DRAW); //We expect once we load this data we will not modify it
         
-        gl.glBufferSubData(GL.GL_ARRAY_BUFFER, 0, positions.length * FloatByteSize, posData);
-        gl.glBufferSubData(GL.GL_ARRAY_BUFFER, positions.length * FloatByteSize, 
-                texCoords.length * FloatByteSize, texData);
+        gl.glBufferSubData(GL.GL_ARRAY_BUFFER, 
+                            0, 
+                            positions.length * FloatByteSize, 
+                            posData); //buffer in vertex position data
+        gl.glBufferSubData(GL.GL_ARRAY_BUFFER, 
+                            positions.length * FloatByteSize,  //buffer in texture coordinate data
+                            texCoords.length * FloatByteSize, 
+                            texData);
+        gl.glBufferSubData(GL.GL_ARRAY_BUFFER, 
+                            (positions.length + texCoords.length) * FloatByteSize,  //buffer in normal vertex data
+                            normals.length * FloatByteSize, 
+                            normalData);
+        
         
         gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
         gl.glEnableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
+        gl.glEnableClientState(GL2.GL_NORMAL_ARRAY);
         
         try {
             shaderprogram = Shader.initShaders(gl, VERTEX_SHADER, FRAGMENT_SHADER);
@@ -203,17 +230,20 @@ public class MyObject {
            
             gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
             gl.glEnableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
+            gl.glEnableClientState(GL2.GL_NORMAL_ARRAY);
             gl.glBindBuffer(GL.GL_ARRAY_BUFFER, bufferIds[0]);
             
             gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0);
             gl.glTexCoordPointer(2, GL.GL_FLOAT, 0, positions.length * FloatByteSize);
+            gl.glNormalPointer(GL.GL_FLOAT, 0, (positions.length + texCoords.length) * FloatByteSize);
             
-            gl.glDrawArrays(GL2.GL_QUADS, 0, 4);
-            
+            gl.glDrawArrays(GL2.GL_QUADS, 0, positions.length / 3); //3 float numbers per vertex.
             
             gl.glUseProgram(0);
             gl.glDisableClientState(GL2.GL_VERTEX_ARRAY);
             gl.glDisableClientState(GL2.GL_TEXTURE_COORD_ARRAY);
+            gl.glDisableClientState(GL2.GL_NORMAL_ARRAY);
+            
             //Un-bind the buffer. 
             //This is not needed in this simple example but good practice
             gl.glBindBuffer(GL.GL_ARRAY_BUFFER,0);
