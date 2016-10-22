@@ -227,18 +227,43 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	private void setSunlight(GL2 gl) {
 		gl.glPushMatrix();			
 			gl.glTranslated(myTerrain.size().getWidth()/2, 0, myTerrain.size().getHeight()/2);
-			gl.glRotated(sunlightAngle ,1 , 0,0 );
+			double rotateVector[] = new double [3];
+			
+			if (sunlightPos[0] != 0 && sunlightPos[2] != 0) {
+				if ((sunlightPos[0] > 0 && sunlightPos[2] > 0) || (sunlightPos[0] < 0 && sunlightPos[2] < 0)) {
+					rotateVector[0] = 1;
+					rotateVector[1] = 0;
+					rotateVector[2] = -1;
+				} else {
+					rotateVector[0] = -1;
+					rotateVector[1] = 0;
+					rotateVector[2] = -1;
+				}				
+			} else if (sunlightPos[0] != 0) {
+				rotateVector[0] = 0;
+				rotateVector[1] = 0;
+				rotateVector[2] = 1;
+			} else if (sunlightPos[2] != 0) {
+				rotateVector[0] = 1;
+				rotateVector[1] = 0;
+				rotateVector[2] = 0;
+			}
 			
 			
+			System.out.print("Roate Vector: ");
+			printVector(rotateVector,"\n");
+			gl.glRotated(-sunlightAngle ,rotateVector[0] ,rotateVector[1], rotateVector[2]);		
 	        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, sunlightPos, 0); 
-	        //gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, sunlight, 0);
 	        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, sunlight, 0);
-	        gl.glPushMatrix();      
-	        	//give a visual of the location of the 'sun'
+	        sunlightAngle += 1;
+	        
+	        //give a visual of the location of the 'sun'
+	        gl.glPushMatrix();      	        	
 	        	gl.glTranslated(5*sunlightPos[0], 5*sunlightPos[1], 5*sunlightPos[2]);	        	
 	        	glut.glutSolidSphere(1, 40, 40); 
         	gl.glPopMatrix();
-	        sunlightAngle += 1;
+	        
+	        
 	        //sunlight[0] +=0.01;
 	        //sunlight[0] %= 10;
 	        
@@ -935,7 +960,7 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	}
 	
 	void printVector (double [] p, String end) {
-		//System.out.print("("+ p[0] + "," + p[1] + "," + p[2]+") " + end);
+		System.out.print("("+ p[0] + "," + p[1] + "," + p[2]+") " + end);
 	}
 	
 	static double sinDeg (double degree) {
