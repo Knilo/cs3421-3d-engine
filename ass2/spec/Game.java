@@ -38,10 +38,12 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     //jimmys vars
     private float[] sunlightPos;
     private double sunlightAngle;
+    private float[] sunlight;
+    
     //weilons vars
-    private float[] sunlightDir = {0, -10000, 0, 0};
-    private float[] sunlight = {0.5f, 0.5f, 0.5f, 0};
-    private double sunlightDelta = 45;
+    //private float[] sunlightDir = {0, -10000, 0, 0};
+    //private float[] sunlight = {0.5f, 0.5f, 0.5f, 0};
+    //private double sunlightDelta = 45;
     
     private int cameraAngle = 0;
     private double momentum = 0;
@@ -160,9 +162,9 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
     	
     	//Forgetting to clear the depth buffer can cause problems 
     	//such as empty black screens.
-    	//gl.glClearColor(1, 1, 1, 1);
-    	gl.glClearColor(sunlight[0]*0.8f + 0.2f, sunlight[1]*0.8f + 0.2f, sunlight[2] + 0.9f, 1); //set the background colour in accordance to sunlight level
-    	gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT); //clear the scene
+    	gl.glClearColor(1, 1, 1, 1);
+    	//gl.glClearColor(sunlight[0]*0.8f + 0.2f, sunlight[1]*0.8f + 0.2f, sunlight[2] + 0.9f, 1);
+    	gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
     	
     	//load the matrix and model view
     	gl.glMatrixMode(GL2.GL_MODELVIEW);
@@ -208,12 +210,12 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         	displayRain(gl); //render train if enabled
         	
         	// set lighting
-        	sunlightDir[2] -= 0.5;
+        	//sunlightDir[2] -= 0.5;
     	gl.glPopMatrix();
     	
-    	gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, sunlightDir, 0);
-    	gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, sunlight, 0);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, sunlight, 0);
+    	//gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, sunlightDir, 0);
+    	//gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, sunlight, 0);
+        //gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, sunlight, 0);
         
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK,GL2.GL_FILL);   
 	}
@@ -225,9 +227,20 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	private void setSunlight(GL2 gl) {
 		gl.glPushMatrix();			
 			gl.glTranslated(myTerrain.size().getWidth()/2, 0, myTerrain.size().getHeight()/2);
-			gl.glRotated(sunlightAngle ,sunlightPos[0], 0, sunlightPos[2]);
-	        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, sunlightPos, 0);
-	        sunlightAngle += 5;
+			gl.glRotated(sunlightAngle ,1 , 0,0 );
+			
+			
+	        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, sunlightPos, 0); 
+	        //gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, sunlight, 0);
+	        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_DIFFUSE, sunlight, 0);
+	        gl.glPushMatrix();      
+	        	//give a visual of the location of the 'sun'
+	        	gl.glTranslated(5*sunlightPos[0], 5*sunlightPos[1], 5*sunlightPos[2]);	        	
+	        	glut.glutSolidSphere(1, 40, 40); 
+        	gl.glPopMatrix();
+	        sunlightAngle += 1;
+	        //sunlight[0] +=0.01;
+	        //sunlight[0] %= 10;
 	        
         gl.glPopMatrix();
 	}
@@ -248,18 +261,19 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	    
 	}
 	
-	private void updateLight() {
-	    //TO DO: CLAMP SUNLIGHT TO 0
-        sunlightDelta += 2;
-        for (int i = 0; i < sunlight.length; i++) {
-            sunlight[i] = (float) Math.sin(Math.toRadians(sunlightDelta));
-            if (sunlight[i] < 0) {
-                sunlight[i] = 0;
-            }
-        }
-	    sunlightDelta %= 360;
-
-	}
+//	private void updateLight() {
+//	    //TO DO: CLAMP SUNLIGHT TO 0
+//        sunlightDelta += 1;
+//        
+//        for (int i = 0; i < sunlight.length; i++) {
+//            sunlight[i] = (float) Math.cos(Math.toRadians(sunlightDelta));
+//            if (sunlight[i] < 0) {
+//                sunlight[i] = 0;
+//            }
+//        }
+//	    sunlightDelta %= 360;
+//
+//	}
 	
 	/**
 	 * Get altitude height of player's position
@@ -441,12 +455,6 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 		for (Road currRoad : this.myTerrain.roads()) {
 			double width = currRoad.width();
 			gl.glBindTexture(GL2.GL_TEXTURE_2D, myTextures[roadTextureId].getTextureId());
-			
-			//gl.glColor3f(100, 0, 0);
-			double v0[] = {};
-			double v1[] = new double[3];
-			double v2[] = new double[3];
-			double v3[] = new double[3];
 	
 			for (double t = 0.02; t < currRoad.size()-0.01; t+=0.01) {
 				gl.glPushMatrix();
@@ -744,14 +752,24 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
         gl.glEnable(GL2.GL_LIGHT1);
         
         
-        float globAmb[] = {0.8f, 0.8f, 0.8f, 1.0f};
-
-        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, globAmb, 0);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, sunlight, 0);
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, sunlight, 0);
-        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globAmb,0); // Global ambient light.
+//        float sunlight[] = {0.6f, 0.6f, 0.6f, 1.0f};
+        sunlight = new float[4];
+        sunlight[0] = 1.5f;
+        sunlight[1] = 0.5f;
+        sunlight[2] = 0.5f;
+        sunlight[3] = 0.5f;
+//	
+//        gl.glLightfv(GL2.GL_LIGHT1, GL2.GL_AMBIENT, sunlight, 0);  
+        float globamb[] = {0.8f, 0.8f, 0.8f, 1.0f,};
+        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, globamb,0); // Global ambient light.
         
-        sunlightPos = myTerrain.getSunlight();
+
+        	
+        
+        sunlightPos = myTerrain.getSunlight();       
+        float temp = sunlightPos[0];
+        sunlightPos[0] = sunlightPos[2];
+		sunlightPos[2] = temp;
         sunlightAngle = 0;
         
         // normalise normals (!)
