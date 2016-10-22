@@ -287,17 +287,17 @@ public class Game extends JFrame implements GLEventListener, KeyListener {
 	private void checkPortals(GL2 gl) {
 	    double[] curPos = {posX, posY, posZ};
 	    for (PortalPair pp : this.myTerrain.portalPairs()) {
-	        if (inRange(curPos, pp.bluePortalPos, 0.1)) {
+	        if (inRange(curPos, pp.bluePortalPos, 0.2)) {
 	            curPos = pp.orangePortalPos;
-	            posX = curPos[0] + 0.15;
+	            posX = curPos[0] + 0.25;
 	            posY = curPos[1];
 	            posZ = curPos[2];
 	            break;
 	        }
 	        
-	        if (inRange(curPos, pp.orangePortalPos, 0.1)) {
+	        if (inRange(curPos, pp.orangePortalPos, 0.2)) {
                 curPos = pp.bluePortalPos;
-                posX = curPos[0] + 0.15;
+                posX = curPos[0] + 0.25;
                 posY = curPos[1];
                 posZ = curPos[2];
                 break;
