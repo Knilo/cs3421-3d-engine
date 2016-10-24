@@ -4,3 +4,16 @@
 /Terrain.class
 /Tree.class
 /Normals.class
+/TextureData.class
+/LevelTexture.class
+/MyObject.class
+/Shader.class
+/Shader$CompilationException.class
+/Enemy.class
+/RainParticle.class
+/CuboidObject.class
+/PortalPair.class
+/HeadObject.class
+/EnemyObject.class
+/PlayerObject.class
+/MobObject.class

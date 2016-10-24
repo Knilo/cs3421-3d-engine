@@ -1,0 +1,9 @@
+
+        //TO DO
+        //figure out whats perpendicular to the direction of the light
+        // rotate accordingly
+        
+        //texture a VBO in a shader
+        //texture example shader/VBO shader week 8
+        //vertex shader outputs coordsinates
+        //frag shader, take in texture coord, use coord to look up value using texture function
