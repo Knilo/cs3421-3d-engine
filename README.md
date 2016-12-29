@@ -1,5 +1,6 @@
 # cs3421-3d-world
 Assignment project for COMP3421 16s2 by Weilon Ying and Jimmy Chen
+
 This project implements the assignment specification provided at https://www.cse.unsw.edu.au/~cs3421/16s2/assignments/ass2.html
 
 Features implemented include:
